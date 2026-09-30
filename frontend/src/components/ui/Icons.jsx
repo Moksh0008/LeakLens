@@ -151,6 +151,16 @@ export function PanelIcon(props) {
   );
 }
 
+export function HomeIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="m3 10.5 9-7.5 9 7.5" />
+      <path d="M5 9.5V20h14V9.5" />
+      <path d="M10 20v-5h4v5" />
+    </Svg>
+  );
+}
+
 export function EyeIcon(props) {
   return (
     <Svg {...props}>

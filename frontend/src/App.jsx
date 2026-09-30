@@ -9,6 +9,7 @@ import StyleGuide from "./pages/StyleGuide";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Home from "./pages/Home";
 import ModulePlaceholder from "./pages/ModulePlaceholder";
 import { useFetch } from "./hooks/useFetch";
 import { getDashboard } from "./services/api";
@@ -46,6 +47,7 @@ export default function App() {
 
         {/* Authenticated app shell */}
         <Route element={<LayoutRoute />}>
+          <Route path="/home" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/price-benchmarking" element={<ModulePlaceholder moduleKey="price-benchmarking" />} />
@@ -55,6 +57,11 @@ export default function App() {
           <Route path="/upload" element={<Upload />} />
           <Route path="/investigation" element={<Investigation />} />
           <Route path="/analytics" element={<Analytics />} />
+
+          {/* Convenient aliases used across the product */}
+          <Route path="/import" element={<Upload />} />
+          <Route path="/benchmarking" element={<ModulePlaceholder moduleKey="price-benchmarking" />} />
+          <Route path="/suppliers" element={<ModulePlaceholder moduleKey="supplier-analysis" />} />
         </Route>
       </Routes>
     </BrowserRouter>

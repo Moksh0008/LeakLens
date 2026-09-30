@@ -13,6 +13,7 @@ import {
   CloseIcon,
   DocIcon,
   GridIcon,
+  HomeIcon,
   LensLogo,
   ListIcon,
   MenuIcon,
@@ -22,7 +23,8 @@ import {
 } from "./ui/Icons";
 
 const NAV_MAIN = [
-  { to: "/dashboard", label: "Overview", icon: GridIcon },
+  { to: "/home", label: "Home", icon: HomeIcon },
+  { to: "/dashboard", label: "Dashboard", icon: GridIcon },
   { to: "/transactions", label: "Transactions", icon: ListIcon },
   { to: "/price-benchmarking", label: "Price Benchmarking", icon: ChartIcon, soon: true },
   { to: "/supplier-analysis", label: "Supplier Analysis", icon: DocIcon, soon: true },
@@ -37,7 +39,8 @@ const NAV_SECONDARY = [
 ];
 
 const TITLES = {
-  "/dashboard": ["Overview", "Procurement leakage overview"],
+  "/home": ["Home", "Your procurement intelligence workspace"],
+  "/dashboard": ["Dashboard", "Procurement leakage overview"],
   "/transactions": ["Transactions", "All analyzed procurement records"],
   "/upload": ["Data Import", "Upload procurement CSV for analysis"],
   "/investigation": ["Investigation", "Flagged transaction evidence"],
@@ -88,7 +91,7 @@ function NavItem({ item, collapsed = false }) {
   return (
     <NavLink
       to={item.to}
-      end={item.to === "/dashboard"}
+      end={item.to === "/home"}
       title={collapsed ? item.label : undefined}
       className={className}
     >

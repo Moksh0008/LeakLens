@@ -43,7 +43,9 @@ export default function LoginForm() {
     setSubmitting(true);
     try {
       await signIn({ email: values.email, password: values.password });
-      navigate("/dashboard");
+      // TODO(session): replace with the real post-login destination
+      // (e.g. from Member 3's API response) once auth lands.
+      navigate("/home");
     } finally {
       setSubmitting(false);
     }
