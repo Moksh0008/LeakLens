@@ -161,12 +161,16 @@
     letter-spacing: -0.02em;
   }
 
-  /* Overline labels, e.g. "POTENTIAL LEAKAGE" */
+  /* Overline labels, e.g. "POTENTIAL LEAKAGE".
+     NOTE: Tailwind also has an `overline` utility (text-decoration).
+     We intentionally keep this class name for labels but disable the
+     decoration so the collision never draws a line above the text. */
   .overline {
     font-size: var(--text-caption);
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+    text-decoration: none; /* neutralize Tailwind's `overline` utility */
     color: var(--text-muted);
   }
 }
