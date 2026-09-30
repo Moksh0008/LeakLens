@@ -165,16 +165,6 @@ export default function AppLayout({ children, flaggedCount }) {
             </span>
           )}
         </Link>
-        {!railCollapsed && (
-          <button
-            type="button"
-            onClick={toggleRail}
-            aria-label="Collapse sidebar"
-            className="hidden rounded-control p-1.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary lg:block"
-          >
-            <PanelIcon size={15} />
-          </button>
-        )}
       </div>
 
       {/* Navigation */}
