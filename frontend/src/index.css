@@ -1,0 +1,5 @@
+/* index.css — entry stylesheet.
+   Tailwind first, then the LeakLens design system
+   (all tokens + base styles live in styles/globals.css). */
+@import "tailwindcss";
+@import "./styles/globals.css";
