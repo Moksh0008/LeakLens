@@ -3,7 +3,7 @@
 // Anchors scroll to landing sections; links use React Router where they
 // point at routes (/login, /signup).
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { LensLogo } from "../ui/Icons";
 import Button from "../ui/Button";
@@ -16,6 +16,16 @@ const SECTIONS = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+
+  // If the viewport grows past the md breakpoint while the mobile menu is
+  // open (e.g. phone rotated, window resized), close it so it never leaks
+  // a stray dropdown onto the desktop layout.
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = () => mq.matches && setOpen(false);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">

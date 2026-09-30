@@ -72,7 +72,9 @@ export default function ManagementInsights() {
               <StaggerItem key={m.label} className="h-full">
                 <Card className="flex h-full flex-col justify-between p-5">
                   <p className="overline">{m.label}</p>
-                  <p className={`tnum mt-4 text-display font-semibold leading-none ${m.cls}`}>
+                  {/* Scales 28→32px so long labels + big figures never
+                      overflow the card at phone widths */}
+                  <p className={`tnum mt-4 text-[28px] font-semibold leading-none sm:text-display ${m.cls}`}>
                     <CountUp value={m.value} format={m.format} duration={1.5} />
                   </p>
                 </Card>

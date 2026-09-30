@@ -77,9 +77,10 @@ export default function HeroVisual() {
             ))}
           </div>
 
-          {/* Trend + findings split */}
-          <div className="grid grid-cols-5 gap-3">
-            <div className="col-span-3 rounded-control border border-border bg-surface-elevated/50 p-3">
+          {/* Trend + findings split — stacks below sm so the findings
+              never get squeezed at phone widths */}
+          <div className="flex flex-col gap-3 sm:grid sm:grid-cols-5 sm:gap-3">
+            <div className="rounded-control border border-border bg-surface-elevated/50 p-3 sm:col-span-3">
               <div className="flex items-center justify-between">
                 <p className="overline">Leakage by month</p>
                 <TrendUpIcon size={14} className="text-danger" />
@@ -92,7 +93,7 @@ export default function HeroVisual() {
               </div>
             </div>
 
-            <div className="col-span-2 flex flex-col gap-2">
+            <div className="flex flex-col gap-2 sm:col-span-2">
               {FINDINGS.map((f, i) => (
                 <motion.div
                   key={f.id}
@@ -101,8 +102,8 @@ export default function HeroVisual() {
                   transition={{ delay: reduce ? 0 : 0.9 + i * 0.15, duration: 0.4, ease: EASE }}
                   className="rounded-control border border-border bg-surface-elevated/50 px-2.5 py-2"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="tnum text-caption text-text-secondary">{f.id}</span>
+                  <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                    <span className="tnum min-w-0 text-caption text-text-secondary">{f.id}</span>
                     <Badge variant={f.severity}>{f.severity}</Badge>
                   </div>
                   <p className="mt-0.5 truncate text-caption text-text-muted">{f.label}</p>

@@ -38,14 +38,15 @@ export default function HowItWorks() {
           </h2>
         </Reveal>
 
-        <Stagger className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-4" gap={0.1}>
+        {/* 2×2 on small tablets, full row of four only when there's room */}
+        <Stagger className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" gap={0.1}>
           {STEPS.map((s, i) => (
             <StaggerItem key={s.n} className="relative h-full">
               {/* Connector (desktop): arrow between cards */}
               {i < STEPS.length - 1 && (
                 <span
                   aria-hidden="true"
-                  className="absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 text-text-muted md:block"
+                  className="absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 text-text-muted lg:block"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12h14m-6-6 6 6-6 6" />

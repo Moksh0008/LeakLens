@@ -126,6 +126,9 @@
 @layer base {
   html {
     @apply antialiased;
+    /* Anchor links (#product etc.) must land BELOW the sticky navbar,
+       not underneath it — on every viewport size. */
+    scroll-padding-top: 5rem;
   }
 
   body {
