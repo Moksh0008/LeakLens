@@ -145,20 +145,32 @@ export default function AppLayout({ children, flaggedCount }) {
 
   const sidebarBody = (
     <>
-      {/* Brand */}
-      <div className="flex items-center justify-between px-5 py-6">
-        <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="LeakLens home">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control border border-border bg-surface-elevated text-accent">
-            <LensLogo size={18} />
-          </span>
-          {!railCollapsed && (
+      {/* Brand — with the sidebar toggle living here, beside the wordmark */}
+      <div
+        className={`flex items-center py-6 ${
+          railCollapsed ? "justify-center px-3" : "justify-between px-5"
+        }`}
+      >
+        {!railCollapsed && (
+          <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="LeakLens home">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control border border-border bg-surface-elevated text-accent">
+              <LensLogo size={18} />
+            </span>
             <span className="min-w-0">
               <span className="block text-[15px] font-semibold leading-tight tracking-tight text-text-primary">
                 LeakLens
               </span>
             </span>
-          )}
-        </Link>
+          </Link>
+        )}
+        <button
+          type="button"
+          className="rounded-control p-2 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary"
+          onClick={toggleRail}
+          aria-label={railCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <PanelIcon size={15} />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -273,14 +285,6 @@ export default function AppLayout({ children, flaggedCount }) {
                 aria-label="Open menu"
               >
                 <MenuIcon size={18} />
-              </button>
-              <button
-                type="button"
-                className="hidden rounded-control p-2 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary lg:block"
-                onClick={toggleRail}
-                aria-label={railCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              >
-                <PanelIcon size={15} />
               </button>
             </div>
 
