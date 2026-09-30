@@ -20,7 +20,7 @@ export default function Hero() {
     <section className="relative overflow-hidden">
       {/* calm: no decorative gradients — whitespace does the work */}
 
-      <div className="mx-auto grid max-w-7xl items-center gap-16 px-4 pb-24 pt-20 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pb-28 lg:pt-24">
+      <div className="mx-auto grid max-w-7xl items-center gap-16 px-4 pb-24 pt-16 sm:px-6 sm:pt-20 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pb-28 lg:pt-24">
         {/* Copy */}
         <div className="max-w-xl">
           <motion.p {...fade(0)} className="overline">
@@ -40,11 +40,11 @@ export default function Hero() {
             exceptions, and other potential sources of avoidable spend.
           </motion.p>
 
-          <motion.div {...fade(0.24)} className="mt-8 flex flex-wrap items-center gap-3">
-            <Link to="/signup">
-              <Button variant="primary" size="md" className="h-11 px-6">Start Analyzing</Button>
+          <motion.div {...fade(0.24)} className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <Link to="/signup" className="contents">
+              <Button variant="primary" size="md" className="h-11 w-full px-6 sm:w-auto">Start Analyzing</Button>
             </Link>
-            <Link to="/dashboard">
+            <Link to="/dashboard" className="contents">
               <Button variant="secondary" size="md" className="h-11 px-6">Explore Dashboard</Button>
             </Link>
           </motion.div>

@@ -1,6 +1,6 @@
 // AppLayout.jsx — refined enterprise application shell.
 // Sidebar: quiet, 224px, collapsible to an icon rail (persisted).
-// Header: 64px, breadcrumb + title + search (⌘K) + alerts + profile.
+// Header: 64px — universal centered search (⌘K), alerts + profile right.
 // Active nav: soft blue tint + small indicator — never glowing.
 // Content column is capped at 1440px with generous gutters.
 
@@ -38,19 +38,6 @@ const NAV_SECONDARY = [
   { to: "#", label: "Settings", icon: DocIcon, soon: true },
   { to: "#", label: "Help", icon: DocIcon, soon: true },
 ];
-
-const TITLES = {
-  "/home": ["Home", "Your procurement intelligence workspace"],
-  "/dashboard": ["Dashboard", "Procurement leakage overview"],
-  "/transactions": ["Transactions", "All analyzed procurement records"],
-  "/upload": ["Data Import", "Upload procurement CSV for analysis"],
-  "/investigation": ["Investigation", "Flagged transaction evidence"],
-  "/analytics": ["Analytics", "Supplier and detection analysis"],
-  "/price-benchmarking": ["Price Benchmarking", "Benchmark prices across suppliers"],
-  "/supplier-analysis": ["Supplier Analysis", "Spend concentration and overlap"],
-  "/contracts": ["Contracts & Discounts", "Contract terms and exceptions"],
-  "/leakage": ["Leakage Analysis", "Leakage patterns in depth"],
-};
 
 function NavItem({ item, collapsed = false }) {
   const Icon = item.icon;
@@ -121,7 +108,6 @@ export default function AppLayout({ children, flaggedCount }) {
   const searchRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const [crumb, title] = TITLES[location.pathname] || ["LeakLens", "Procurement intelligence"];
 
   // Close the side panel on navigation.
   useEffect(() => {
@@ -159,20 +145,32 @@ export default function AppLayout({ children, flaggedCount }) {
 
   const sidebarBody = (
     <>
-      {/* Brand */}
-      <div className="flex items-center justify-between px-5 py-6">
-        <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="LeakLens home">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control border border-border bg-surface-elevated text-accent">
-            <LensLogo size={18} />
-          </span>
-          {!railCollapsed && (
+      {/* Brand — with the sidebar toggle living here, beside the wordmark */}
+      <div
+        className={`flex items-center py-6 ${
+          railCollapsed ? "justify-center px-3" : "justify-between px-5"
+        }`}
+      >
+        {!railCollapsed && (
+          <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="LeakLens home">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control border border-border bg-surface-elevated text-accent">
+              <LensLogo size={18} />
+            </span>
             <span className="min-w-0">
               <span className="block text-[15px] font-semibold leading-tight tracking-tight text-text-primary">
                 LeakLens
               </span>
             </span>
-          )}
-        </Link>
+          </Link>
+        )}
+        <button
+          type="button"
+          className="rounded-control p-2 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary"
+          onClick={toggleRail}
+          aria-label={railCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <PanelIcon size={15} />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -276,53 +274,41 @@ export default function AppLayout({ children, flaggedCount }) {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Header — 64px, quiet */}
         <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
-          <div className="content-shell flex h-16 items-center gap-4">
-            <button
-              type="button"
-              className="rounded-control p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:hidden"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open menu"
-            >
-              <MenuIcon size={18} />
-            </button>
-            <button
-              type="button"
-              className="hidden rounded-control p-2 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary lg:block"
-              onClick={toggleRail}
-              aria-label={railCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              <PanelIcon size={15} />
-            </button>
-
-            <div className="flex min-w-0 items-baseline gap-2.5">
-              <span className="text-caption text-text-muted">LeakLens</span>
-              <span className="text-border-strong">/</span>
-              <span className="truncate text-caption text-text-secondary">{crumb}</span>
-              <h1 className="hidden text-small font-medium text-text-primary md:block">
-                {title}
-              </h1>
+          {/* Universal header: shell toggles left · search centered ·
+              notifications + profile right. No breadcrumb text. */}
+          <div className="content-shell grid h-16 grid-cols-[1fr_minmax(0,28rem)_1fr] items-center gap-4">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="rounded-control p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:hidden"
+                onClick={() => setMobileOpen(true)}
+                aria-label="Open menu"
+              >
+                <MenuIcon size={18} />
+              </button>
             </div>
 
-            <div className="ml-auto flex items-center gap-2">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const q = searchRef.current?.value.trim();
-                  if (q) navigate(`/transactions?q=${encodeURIComponent(q)}`);
-                }}
-                className="hidden items-center gap-2.5 rounded-control border border-border bg-surface px-3.5 py-2 text-small text-text-muted transition-colors focus-within:border-border-strong md:flex lg:w-60"
-              >
-                <SearchIcon size={14} />
-                <input
-                  ref={searchRef}
-                  placeholder="Search transactions…"
-                  aria-label="Search transactions"
-                  className="w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted"
-                />
-                <kbd className="tnum rounded border border-border px-1 text-[10px] text-text-muted">
-                  ⌘K
-                </kbd>
-              </form>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const q = searchRef.current?.value.trim();
+                if (q) navigate(`/transactions?q=${encodeURIComponent(q)}`);
+              }}
+              className="flex min-w-0 items-center gap-2.5 rounded-control border border-border bg-surface px-3.5 py-2 text-small text-text-muted transition-colors focus-within:border-border-strong"
+            >
+              <SearchIcon size={14} className="shrink-0" />
+              <input
+                ref={searchRef}
+                placeholder="Search transactions…"
+                aria-label="Search transactions"
+                className="w-full min-w-0 bg-transparent text-text-primary outline-none placeholder:text-text-muted"
+              />
+              <kbd className="tnum hidden rounded border border-border px-1 text-[10px] text-text-muted sm:block">
+                ⌘K
+              </kbd>
+            </form>
+
+            <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => navigate("/investigation")}

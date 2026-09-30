@@ -92,6 +92,9 @@ export default function Transactions() {
               </tr>
             </thead>
             <tbody>
+              {/* Flagged rows open the Investigation view (flagged list +
+                  evidence) for that transaction; Clean rows are read-only —
+                  there is nothing to investigate on them. */}
               {filtered.slice(0, 100).map((t) => (
                 <tr
                   key={t.transactionId}
@@ -99,7 +102,11 @@ export default function Transactions() {
                     t.potentialLeakage > 0 &&
                     navigate("/investigation", { state: { transactionId: t.transactionId } })
                   }
-                  className="border-b border-ink-100 last:border-0 transition-colors hover:bg-brand-50/40"
+                  className={`border-b border-ink-100 last:border-0 transition-colors ${
+                    t.potentialLeakage > 0
+                      ? "cursor-pointer hover:bg-surface-hover/40"
+                      : "hover:bg-surface-hover/20"
+                  }`}
                 >
                   <td className="px-4 py-3 font-medium text-ink-800">{t.transactionId}</td>
                   <td className="px-4 py-3 text-ink-600">{t.product}</td>
