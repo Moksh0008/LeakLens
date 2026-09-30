@@ -25,27 +25,45 @@ def prepare_detection_data(df: pd.DataFrame) -> pd.DataFrame:
 
 def add_price_benchmarks(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Add product/category benchmark information.
+    Calculate historical product/category benchmarks.
+
+    For each transaction, only transactions that occurred
+    before the current transaction are used as historical data.
+
+    This prevents the current transaction from influencing
+    its own benchmark.
     """
 
     result = df.copy()
 
-    result["benchmarkPrice"] = (
-        result.groupby(
-            ["product", "category"]
-        )["unitPrice"]
-        .transform("median")
-    )
+    result["benchmarkPrice"] = float("nan")
+    result["historicalCount"] = 0
 
-    result["historicalCount"] = (
-        result.groupby(
-            ["product", "category"]
-        )["unitPrice"]
-        .transform("count")
-    )
+    result = result.sort_values(
+        "date"
+    ).reset_index(drop=True)
+
+    for index, row in result.iterrows():
+
+        historical = result[
+            (result["date"] < row["date"])
+            & (result["product"] == row["product"])
+            & (result["category"] == row["category"])
+            & (result["unitPrice"] > 0)
+        ]
+
+        if not historical.empty:
+            result.loc[
+                index,
+                "benchmarkPrice"
+            ] = historical["unitPrice"].median()
+
+            result.loc[
+                index,
+                "historicalCount"
+            ] = len(historical)
 
     return result
-
 
 def add_price_anomaly_severity(
     findings: pd.DataFrame,
