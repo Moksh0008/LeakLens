@@ -1,0 +1,4 @@
+transactionId,date,product,category,supplier,quantity,unitPrice,totalAmount
+TX9001,2026-01-10,Laptop,Electronics,ABC Ltd,10,65000,650000
+TX9002,2026-01-11,Monitor,Electronics,XYZ Ltd,5,15000,75000
+TX9003,2026-01-12,Keyboard,Electronics,ABC Ltd,20,2000,40000
