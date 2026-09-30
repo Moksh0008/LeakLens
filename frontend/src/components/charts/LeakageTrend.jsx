@@ -11,8 +11,8 @@ import {
   AXIS_TICK,
   ChartTooltip,
   GRID_COLOR,
-  LEAKAGE_AREA_FILL,
-  LEAKAGE_AREA_STROKE,
+  LEAKAGE_COLOR,
+  SERIES_BLUE,
 } from "./chartTheme";
 import { formatCompactINR } from "../../utils/format";
 
@@ -27,8 +27,8 @@ export default function LeakageTrend({ data, height = 260 }) {
         <AreaChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id="leakageGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={LEAKAGE_AREA_FILL} stopOpacity={0.25} />
-              <stop offset="100%" stopColor={LEAKAGE_AREA_FILL} stopOpacity={0.02} />
+              <stop offset="0%" stopColor={SERIES_BLUE} stopOpacity={0.25} />
+              <stop offset="100%" stopColor={SERIES_BLUE} stopOpacity={0.02} />
             </linearGradient>
           </defs>
           <CartesianGrid vertical={false} stroke={GRID_COLOR} />
@@ -49,10 +49,10 @@ export default function LeakageTrend({ data, height = 260 }) {
           <Area
             type="monotone"
             dataKey="value"
-            stroke={LEAKAGE_AREA_STROKE}
+            stroke={SERIES_BLUE}
             strokeWidth={2}
             fill="url(#leakageGradient)"
-            activeDot={{ r: 4, strokeWidth: 2, stroke: "#fff" }}
+            activeDot={{ r: 4, strokeWidth: 2, stroke: "#11151c" }}
           />
         </AreaChart>
       </ResponsiveContainer>

@@ -1,10 +1,11 @@
 // Button.jsx — the single button style for the whole app.
 // Variants: primary (accent), secondary (panel), ghost (quiet), danger.
+// Primary CTA carries the only sanctioned accent glow.
 // Keyboard-friendly by default: real <button>, visible focus ring from globals.css.
 
 const VARIANTS = {
   primary:
-    "bg-accent text-white hover:bg-accent-strong border border-transparent shadow-[0_1px_2px_rgba(0,0,0,0.35)]",
+    "bg-accent text-white hover:bg-accent-strong border border-transparent shadow-[0_1px_2px_rgba(0,0,0,0.4)] focus-visible:glow-accent",
   secondary:
     "bg-surface-elevated text-text-primary hover:bg-surface-hover border border-border",
   ghost:

@@ -13,7 +13,10 @@
 //   GET /api/leakage/:transactionId
 
 import {
+  buildConsolidationOpportunities,
+  buildContractExceptions,
   buildMockDashboard,
+  buildSpendLeakageTrend,
   mockLeakage,
   mockTransactions,
 } from "./mockData";
@@ -50,6 +53,22 @@ export function getTransactions() {
 export function getLeakage() {
   if (USE_MOCK) return mockResponse(mockLeakage);
   return apiGet("/leakage");
+}
+
+/** Dashboard analytical series (mock-derived; backend will own these). */
+export function getSpendLeakageTrend() {
+  if (USE_MOCK) return mockResponse(buildSpendLeakageTrend());
+  return apiGet("/analytics/spend-leakage-trend");
+}
+
+export function getConsolidationOpportunities() {
+  if (USE_MOCK) return mockResponse(buildConsolidationOpportunities());
+  return apiGet("/analytics/consolidation");
+}
+
+export function getContractExceptions() {
+  if (USE_MOCK) return mockResponse(buildContractExceptions());
+  return apiGet("/analytics/contract-exceptions");
 }
 
 /** GET /api/leakage/:transactionId — one leakage record with evidence */

@@ -32,8 +32,8 @@ export default function Upload() {
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
-        className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed bg-white px-6 py-16 text-center transition ${
-          dragging ? "border-brand-400 bg-brand-50/40" : "border-ink-200"
+        className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-card border-2 border-dashed bg-surface px-6 py-16 text-center transition ${
+          dragging ? "border-accent bg-accent-soft" : "border-border-strong"
         }`}
       >
         <input
@@ -57,7 +57,7 @@ export default function Upload() {
         </div>
       </label>
 
-      <div className="rounded-xl border border-ink-200 bg-white p-5">
+      <div className="rounded-card border border-border bg-surface p-5">
         <div className="flex items-center gap-2.5">
           <DocIcon size={18} className="text-ink-400" />
           <h2 className="text-sm font-semibold text-ink-800">Expected CSV columns</h2>

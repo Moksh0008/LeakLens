@@ -44,23 +44,23 @@ export default function Transactions() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex flex-1 items-center gap-2 rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm lg:max-w-xs">
-          <SearchIcon size={15} className="text-ink-400" />
+        <label className="flex flex-1 items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-small lg:max-w-xs">
+          <SearchIcon size={15} className="text-text-muted" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search ID, supplier, product…"
-            className="w-full bg-transparent text-ink-700 outline-none placeholder:text-ink-400"
+            className="w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted"
           />
         </label>
-        <div className="flex gap-1 rounded-lg border border-ink-200 bg-white p-1">
+        <div className="flex gap-1 rounded-control border border-border bg-surface p-1">
           {SEVERITIES.map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => setSeverity(s)}
               className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                severity === s ? "bg-ink-900 text-white" : "text-ink-500 hover:text-ink-800"
+                severity === s ? "bg-accent text-white" : "text-text-secondary hover:text-text-primary"
               }`}
             >
               {s}
@@ -75,7 +75,7 @@ export default function Transactions() {
       {filtered.length === 0 ? (
         <EmptyPanel message="No transactions match your filters" hint="Try clearing the search or severity filter" />
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-ink-200 bg-white">
+        <div className="overflow-x-auto rounded-card border border-border bg-surface">
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead>
               <tr className="border-b border-ink-100 text-[11px] uppercase tracking-wide text-ink-400">

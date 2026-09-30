@@ -68,3 +68,37 @@ export function leakageRate(potentialLeakage, totalProcurement) {
   if (!totalProcurement) return 0;
   return (potentialLeakage / totalProcurement) * 100;
 }
+
+/**
+ * Supplier price variance — for each supplier, the average spread between
+ * the unit prices they charge and the median unit price for the same products.
+ * Returns [{ supplier, variancePct }] sorted desc, top N.
+ */
+export function getSupplierPriceVariance(transactions, topN = 7) {
+  // Median unit price per product across all suppliers.
+  const byProduct = new Map();
+  for (const t of transactions) {
+    if (!byProduct.has(t.product)) byProduct.set(t.product, []);
+    byProduct.get(t.product).push(t.actualPrice);
+  }
+  const median = new Map();
+  for (const [product, prices] of byProduct) {
+    const sorted = [...prices].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    median.set(product, sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2);
+  }
+
+  // Per-supplier average premium vs product median.
+  const acc = new Map();
+  for (const t of transactions) {
+    const m = median.get(t.product) || t.actualPrice;
+    const cur = acc.get(t.supplier) || { sum: 0, n: 0 };
+    cur.sum += ((t.actualPrice - m) / m) * 100;
+    cur.n += 1;
+    acc.set(t.supplier, cur);
+  }
+  return [...acc.entries()]
+    .map(([supplier, { sum, n }]) => ({ supplier, variancePct: Number((sum / n).toFixed(1)) }))
+    .sort((a, b) => b.variancePct - a.variancePct)
+    .slice(0, topN);
+}

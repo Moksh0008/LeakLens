@@ -7,10 +7,11 @@ import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 
 const SURFACES = [
-  ["--background", "App background", "bg-background"],
-  ["--surface", "Card panel", "bg-surface"],
-  ["--surface-elevated", "Raised panel / inputs", "bg-surface-elevated"],
-  ["--surface-hover", "Hover state", "bg-surface-hover"],
+  ["--background", "App background", "bg-background border border-border"],
+  ["--background-2", "Sidebar / header", "bg-background-2 border border-border"],
+  ["--surface", "Card panel", "bg-surface border border-border"],
+  ["--surface-elevated", "Raised panel / inputs", "bg-surface-elevated border border-border"],
+  ["--surface-hover", "Hover state", "bg-surface-hover border border-border"],
 ];
 
 const TEXT = [
@@ -21,10 +22,11 @@ const TEXT = [
 
 const ACCENT = [
   ["--accent", "bg-accent"],
-  ["--accent-strong", "bg-accent-strong"],
+  ["--accent-2", "bg-accent-2"],
   ["--success", "bg-success"],
   ["--warning", "bg-warning"],
   ["--danger", "bg-danger"],
+  ["--info", "bg-info"],
 ];
 
 function Swatch({ name, label, className }) {

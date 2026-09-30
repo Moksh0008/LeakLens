@@ -1,47 +1,75 @@
+// KpiCards.jsx — the six-card executive row.
+// Hierarchy: overline label → large tabular figure → movement/context caption.
+// The "Potential Leakage" card is the highlighted KPI (subtle accent border),
+// mirroring how the reference treats its primary metric.
+
 import { motion } from "framer-motion";
 import { formatCompactINR, formatNumber, formatPercent } from "../../utils/format";
 import { TrendUpIcon } from "../ui/Icons";
 
-const STAGGER = { animate: { transition: { staggerChildren: 0.06 } } };
+const STAGGER = { animate: { transition: { staggerChildren: 0.05 } } };
 const ITEM = {
-  initial: { opacity: 0, y: 14 },
+  initial: { opacity: 0, y: 12 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
 };
 
-/**
- * Row of the four agreed KPIs:
- * Total Procurement · Potential Leakage · Transactions Analyzed · Flagged Transactions
- */
+function Movement({ pct, negative = false }) {
+  if (pct === undefined) return null;
+  const cls = negative ? "text-danger" : "text-success";
+  const arrow = negative ? "↓" : "↑";
+  return (
+    <span className={`tnum mt-2 inline-flex items-center gap-1 text-caption ${cls}`}>
+      {arrow} {Math.abs(pct).toFixed(1)}%
+      <span className="text-text-muted">vs previous period</span>
+    </span>
+  );
+}
+
 export default function KpiCards({ dashboard }) {
-  const leakageRatePct = dashboard.totalProcurement
-    ? (dashboard.potentialLeakage / dashboard.totalProcurement) * 100
+  const d = dashboard;
+  const leakageRatePct = d.totalProcurement
+    ? (d.potentialLeakage / d.totalProcurement) * 100
     : 0;
 
   const cards = [
     {
-      label: "Total Procurement",
-      value: formatCompactINR(dashboard.totalProcurement),
-      sub: `${formatNumber(dashboard.transactionsAnalyzed)} transactions analyzed`,
-      accent: "text-ink-900",
+      label: "Total Procurement Spend",
+      value: formatCompactINR(d.totalProcurement),
+      movement: d.spendChangePct,
+      negative: false,
+      highlight: false,
     },
     {
       label: "Potential Leakage",
-      value: formatCompactINR(dashboard.potentialLeakage),
-      sub: `${formatPercent(leakageRatePct)} of total spend`,
-      accent: "text-red-600",
-      dot: "bg-red-500",
+      value: formatCompactINR(d.potentialLeakage),
+      movement: d.leakageChangePct,
+      negative: true,
+      highlight: true,
+      context: `${formatPercent(leakageRatePct)} of spend`,
+    },
+    {
+      label: "Potential Missed Savings",
+      value: formatCompactINR(d.missedSavings ?? 0),
+      context: "recoverable via negotiation",
+      highlight: false,
     },
     {
       label: "Transactions Analyzed",
-      value: formatNumber(dashboard.transactionsAnalyzed),
-      sub: "procurement records processed",
-      accent: "text-ink-900",
+      value: formatNumber(d.transactionsAnalyzed),
+      context: "records processed",
+      highlight: false,
     },
     {
       label: "Flagged Transactions",
-      value: formatNumber(dashboard.flaggedTransactions),
-      sub: `${dashboard.openInvestigations ?? 0} high-severity open`,
-      accent: "text-ink-900",
+      value: formatNumber(d.flaggedTransactions),
+      context: `${d.openInvestigations ?? 0} require investigation`,
+      highlight: false,
+    },
+    {
+      label: "Suppliers Analyzed",
+      value: formatNumber(d.suppliersAnalyzed ?? 0),
+      context: "across all categories",
+      highlight: false,
     },
   ];
 
@@ -50,26 +78,37 @@ export default function KpiCards({ dashboard }) {
       variants={STAGGER}
       initial="initial"
       animate="animate"
-      className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      className="grid grid-cols-2 gap-3 md:grid-cols-3 2xl:grid-cols-6"
     >
       {cards.map((card) => (
         <motion.div
           key={card.label}
           variants={ITEM}
-          className="rounded-xl border border-ink-200 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+          className={`rounded-card border bg-surface p-4 ${
+            card.highlight
+              ? "border-accent/40 shadow-[0_0_0_1px_rgba(59,130,246,0.15),0_0_20px_rgba(59,130,246,0.08)]"
+              : "border-border"
+          }`}
         >
-          <div className="flex items-center justify-between">
-            <p className="text-[13px] font-medium text-ink-500">{card.label}</p>
-            {card.dot ? (
-              <span className={`h-2 w-2 rounded-full ${card.dot} animate-pulse`} />
-            ) : (
-              <TrendUpIcon size={16} className="text-ink-300" />
-            )}
-          </div>
-          <p className={`tnum mt-2 text-[28px] font-semibold leading-none ${card.accent}`}>
+          <p className="overline">{card.label}</p>
+          <p
+            className={`tnum mt-2 text-[24px] font-semibold leading-none ${
+              card.highlight ? "text-text-primary" : "text-text-primary"
+            }`}
+          >
             {card.value}
           </p>
-          <p className="mt-2.5 text-xs text-ink-400">{card.sub}</p>
+          {card.context && (
+            <p className="mt-1.5 text-caption text-text-muted">{card.context}</p>
+          )}
+          {card.movement !== undefined ? (
+            <Movement pct={card.movement} negative={card.negative} />
+          ) : (
+            <div className="mt-2 flex items-center gap-1.5 text-caption text-text-muted">
+              <TrendUpIcon size={12} />
+              <span>—</span>
+            </div>
+          )}
         </motion.div>
       ))}
     </motion.div>

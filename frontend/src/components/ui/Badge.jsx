@@ -4,17 +4,22 @@
 // The whole app stays neutral; only severity carries colour.
 
 const VARIANTS = {
-  LOW: "bg-severity-low/10 text-severity-low border-severity-low/25",
-  MEDIUM: "bg-severity-medium/10 text-severity-medium border-severity-medium/25",
-  HIGH: "bg-severity-high/10 text-severity-high border-severity-high/25",
+  LOW: "bg-success/10 text-success border-success/25",
+  MEDIUM: "bg-warning/10 text-warning border-warning/25",
+  HIGH: "bg-danger/10 text-danger border-danger/30",
   neutral: "bg-surface-elevated text-text-secondary border-border",
   accent: "bg-accent-soft text-accent border-accent/25",
+  purple: "bg-accent-2-soft text-accent-2 border-accent-2/25",
+  info: "bg-info/10 text-info border-info/25",
 };
 
 const DOT = {
-  LOW: "bg-severity-low",
-  MEDIUM: "bg-severity-medium",
-  HIGH: "bg-severity-high",
+  LOW: "bg-success",
+  MEDIUM: "bg-warning",
+  HIGH: "bg-danger",
+  info: "bg-info",
+  accent: "bg-accent",
+  purple: "bg-accent-2",
 };
 
 export default function Badge({ variant = "neutral", dot = false, className = "", children }) {

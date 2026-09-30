@@ -32,7 +32,7 @@ export default function HighImpactTable({ items = [], onInvestigate, limit = 8 }
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.04 }}
               onClick={() => onInvestigate?.(t)}
-              className="cursor-pointer transition-colors hover:bg-brand-50/60"
+              className="cursor-pointer transition-colors hover:bg-surface-hover"
             >
               <td className="border-b border-ink-100 px-3 py-3">
                 <div className="font-medium text-ink-800">{t.transactionId}</div>

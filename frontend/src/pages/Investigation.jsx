@@ -62,7 +62,7 @@ export default function Investigation() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[340px_1fr]">
         {/* ---------- Left: flagged list ---------- */}
         <div className="flex flex-col gap-3">
-          <label className="flex items-center gap-2 rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm">
+          <label className="flex items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-small">
             <SearchIcon size={15} className="text-ink-400" />
             <input
               value={filter}
@@ -72,7 +72,7 @@ export default function Investigation() {
             />
           </label>
 
-          <div className="flex max-h-[560px] flex-col divide-y divide-ink-100 overflow-y-auto rounded-xl border border-ink-200 bg-white">
+          <div className="flex max-h-[560px] flex-col divide-y divide-border overflow-y-auto rounded-card border border-border bg-surface">
             {filtered.length === 0 && (
               <EmptyPanel message="No matching flagged transactions" />
             )}
@@ -103,7 +103,7 @@ export default function Investigation() {
         </div>
 
         {/* ---------- Right: detail panel ---------- */}
-        <div className="rounded-xl border border-ink-200 bg-white">
+        <div className="rounded-card border border-border bg-surface">
           {detail.loading && <LoadingPanel label="Loading evidence…" />}
 
           {detail.error && (

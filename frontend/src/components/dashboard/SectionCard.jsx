@@ -12,7 +12,7 @@ export default function SectionCard({ title, subtitle, action, className = "", c
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut", delay }}
-      className={`flex flex-col rounded-xl border border-ink-200 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] ${className}`}
+      className={`flex flex-col rounded-card border border-border bg-surface shadow-[var(--shadow-card)] ${className}`}
     >
       <header className="flex items-start justify-between gap-3 border-b border-ink-100 px-5 pb-3 pt-4">
         <div>

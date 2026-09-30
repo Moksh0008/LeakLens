@@ -24,7 +24,7 @@ export default function SeverityDonut({ data, height = 240 }) {
               outerRadius="88%"
               paddingAngle={2}
               strokeWidth={2}
-              stroke="#fff"
+              stroke="#11151c"
             >
               {data.map((entry) => (
                 <Cell
@@ -37,13 +37,11 @@ export default function SeverityDonut({ data, height = 240 }) {
           </PieChart>
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[11px] font-medium uppercase tracking-wide text-ink-400">
-            Total leakage
-          </span>
-          <span className="tnum text-xl font-semibold text-ink-900">
+          <span className="overline">Total leakage</span>
+          <span className="tnum text-xl font-semibold text-text-primary">
             {formatCompactINR(total)}
           </span>
-          <span className="tnum text-[11px] text-ink-400">
+          <span className="tnum text-[11px] text-text-muted">
             {formatNumber(totalFlags)} flags
           </span>
         </div>
@@ -57,11 +55,11 @@ export default function SeverityDonut({ data, height = 240 }) {
                 className="h-2.5 w-2.5 rounded-sm"
                 style={{ background: SEVERITY_COLORS[d.name] }}
               />
-              <span className="font-medium text-ink-700">{d.name}</span>
+              <span className="font-medium text-text-primary">{d.name}</span>
             </span>
-            <span className="tnum text-ink-500">
+            <span className="tnum text-text-secondary">
               {formatCompactINR(d.value)}{" "}
-              <span className="text-ink-300">· {d.count}</span>
+              <span className="text-text-muted">· {d.count}</span>
             </span>
           </li>
         ))}
