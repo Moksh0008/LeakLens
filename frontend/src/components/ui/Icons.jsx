@@ -191,8 +191,12 @@ export function CloseIcon(props) {
 export function LensLogo({ size = 22, ...props }) {
   return (
     <Svg size={size} strokeWidth={2} {...props}>
+      {/* Magnifier lens */}
       <circle cx="10.5" cy="10.5" r="6.5" />
-      <circle cx="10.5" cy="10.5" r="2.5" />
+      {/* Dollar symbol under inspection */}
+      <path d="M10.5 6.9v7.2" />
+      <path d="M12.3 8.2h-2.3a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3H8.7" />
+      {/* Handle */}
       <path d="m15.5 15.5 4.5 4.5" />
     </Svg>
   );
