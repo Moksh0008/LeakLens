@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { getTransactions } from "../services/api";
 import { useFetch } from "../hooks/useFetch";
 import { formatCompactINR, formatDate, formatINR } from "../utils/format";
@@ -10,7 +10,6 @@ import { SearchIcon } from "../components/ui/Icons";
 const SEVERITIES = ["ALL", "HIGH", "MEDIUM", "LOW"];
 
 export default function Transactions() {
-  const navigate = useNavigate();
   const { data, loading, error, refetch } = useFetch(getTransactions, []);
   // Header search lands here with ?q=… — seed the filter from it.
   const [searchParams] = useSearchParams();
@@ -92,14 +91,13 @@ export default function Transactions() {
               </tr>
             </thead>
             <tbody>
+              {/* Rows are read-only here on purpose: the flagged-transaction
+                  evidence (benchmark, impact) opens only from the Leakage
+                  alerts / Investigation flow, not from this table. */}
               {filtered.slice(0, 100).map((t) => (
                 <tr
                   key={t.transactionId}
-                  onClick={() =>
-                    t.potentialLeakage > 0 &&
-                    navigate("/investigation", { state: { transactionId: t.transactionId } })
-                  }
-                  className="border-b border-ink-100 last:border-0 transition-colors hover:bg-brand-50/40"
+                  className="border-b border-ink-100 last:border-0 transition-colors hover:bg-surface-hover/40"
                 >
                   <td className="px-4 py-3 font-medium text-ink-800">{t.transactionId}</td>
                   <td className="px-4 py-3 text-ink-600">{t.product}</td>
