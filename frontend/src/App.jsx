@@ -7,7 +7,8 @@ import Investigation from "./pages/Investigation";
 import Analytics from "./pages/Analytics";
 import StyleGuide from "./pages/StyleGuide";
 import Landing from "./pages/Landing";
-import AuthPlaceholder from "./pages/AuthPlaceholder";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import ModulePlaceholder from "./pages/ModulePlaceholder";
 import { useFetch } from "./hooks/useFetch";
 import { getDashboard } from "./services/api";
@@ -37,8 +38,8 @@ export default function App() {
       <Routes>
         {/* Public site */}
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<AuthPlaceholder mode="login" />} />
-        <Route path="/signup" element={<AuthPlaceholder mode="signup" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* Design-system reference */}
         <Route path="/styleguide" element={<StyleGuide />} />

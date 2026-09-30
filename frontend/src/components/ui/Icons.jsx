@@ -151,6 +151,25 @@ export function PanelIcon(props) {
   );
 }
 
+export function EyeIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </Svg>
+  );
+}
+
+export function EyeOffIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M10.7 6c.4-.1.9-.2 1.3-.2 6 0 9.5 6.2 9.5 6.2a17 17 0 0 1-2.4 3.1M6.6 6.8A16.6 16.6 0 0 0 2.5 12S6 18.5 12 18.5c1.5 0 2.9-.4 4.1-1" />
+      <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+      <path d="m4 4 16 16" />
+    </Svg>
+  );
+}
+
 export function CloseIcon(props) {
   return (
     <Svg {...props}>
