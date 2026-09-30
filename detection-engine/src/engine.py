@@ -27,11 +27,8 @@ def add_price_benchmarks(df: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate historical product/category benchmarks.
 
-    For each transaction, only transactions that occurred
-    before the current transaction are used as historical data.
-
-    This prevents the current transaction from influencing
-    its own benchmark.
+    Only transactions that occurred before the current
+    transaction are used as historical data.
     """
 
     result = df.copy()
@@ -64,6 +61,7 @@ def add_price_benchmarks(df: pd.DataFrame) -> pd.DataFrame:
             ] = len(historical)
 
     return result
+
 
 def add_price_anomaly_severity(
     findings: pd.DataFrame,
@@ -174,8 +172,7 @@ def add_quantity_severity(
     Add severity to unusual quantity findings.
 
     Quantity anomalies do not have a direct price
-    deviation, so they are classified as MEDIUM
-    when detected.
+    deviation, so they are classified as MEDIUM.
     """
 
     if findings.empty:
@@ -186,6 +183,49 @@ def add_quantity_severity(
     findings["severity"] = "MEDIUM"
 
     return findings
+
+
+def prepare_price_spike_history(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Calculate historical supplier/product prices.
+
+    Only transactions before the current transaction
+    are used as historical observations.
+    """
+
+    result = df.copy()
+
+    result["historicalPrice"] = float("nan")
+    result["historicalCount"] = 0
+
+    result = result.sort_values(
+        "date"
+    ).reset_index(drop=True)
+
+    for index, row in result.iterrows():
+
+        historical = result[
+            (result["date"] < row["date"])
+            & (result["product"] == row["product"])
+            & (result["category"] == row["category"])
+            & (result["supplier"] == row["supplier"])
+            & (result["unitPrice"] > 0)
+        ]
+
+        if not historical.empty:
+            result.loc[
+                index,
+                "historicalPrice"
+            ] = historical["unitPrice"].median()
+
+            result.loc[
+                index,
+                "historicalCount"
+            ] = len(historical)
+
+    return result
 
 
 def run_detection_engine(
@@ -201,7 +241,7 @@ def run_detection_engine(
     prepared_df = prepare_detection_data(df)
 
     # --------------------------------
-    # 2. Prepare product benchmarks
+    # 2. Prepare historical benchmarks
     # --------------------------------
     detection_df = add_price_benchmarks(
         prepared_df
@@ -234,30 +274,10 @@ def run_detection_engine(
     )
 
     # --------------------------------
-    # 5. Prepare price spike history
+    # 5. Prepare historical price spike data
     # --------------------------------
-    spike_df = detection_df.copy()
-
-    spike_df["historicalPrice"] = (
-        spike_df.groupby(
-            [
-                "product",
-                "category",
-                "supplier",
-            ]
-        )["unitPrice"]
-        .transform("median")
-    )
-
-    spike_df["historicalCount"] = (
-        spike_df.groupby(
-            [
-                "product",
-                "category",
-                "supplier",
-            ]
-        )["unitPrice"]
-        .transform("count")
+    spike_df = prepare_price_spike_history(
+        prepared_df
     )
 
     # --------------------------------
