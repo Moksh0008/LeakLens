@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
@@ -8,11 +8,12 @@ import Analytics from "./pages/Analytics";
 import StyleGuide from "./pages/StyleGuide";
 import Landing from "./pages/Landing";
 import AuthPlaceholder from "./pages/AuthPlaceholder";
+import ModulePlaceholder from "./pages/ModulePlaceholder";
 import { useFetch } from "./hooks/useFetch";
 import { getDashboard } from "./services/api";
 
 /**
- * LayoutRoute — wraps pages in the sidebar/topbar layout.
+ * LayoutRoute — wraps pages in the sidebar/topbar shell.
  * The sidebar's "flagged transactions" counter reuses the same
  * getDashboard call so it always matches the Dashboard KPI card.
  */
@@ -26,7 +27,7 @@ function LayoutRoute() {
 }
 
 /**
- * App — router + shared layout.
+ * App — router + shared application shell.
  * Pages fetch through src/services/api.js, so switching
  * mock → real API never touches any UI code.
  */
@@ -39,13 +40,17 @@ export default function App() {
         <Route path="/login" element={<AuthPlaceholder mode="login" />} />
         <Route path="/signup" element={<AuthPlaceholder mode="signup" />} />
 
-        {/* Design-system foundation */}
+        {/* Design-system reference */}
         <Route path="/styleguide" element={<StyleGuide />} />
 
-        {/* Existing app pages (kept intact — will be migrated to the new tokens next) */}
+        {/* Authenticated app shell */}
         <Route element={<LayoutRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/price-benchmarking" element={<ModulePlaceholder moduleKey="price-benchmarking" />} />
+          <Route path="/supplier-analysis" element={<ModulePlaceholder moduleKey="supplier-analysis" />} />
+          <Route path="/contracts" element={<ModulePlaceholder moduleKey="contracts" />} />
+          <Route path="/leakage" element={<ModulePlaceholder moduleKey="leakage" />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/investigation" element={<Investigation />} />
           <Route path="/analytics" element={<Analytics />} />

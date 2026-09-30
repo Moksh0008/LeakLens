@@ -141,6 +141,16 @@ export function MenuIcon(props) {
   );
 }
 
+export function PanelIcon(props) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9.5 4v16" />
+      <path d="m14.5 10-2 2 2 2" />
+    </Svg>
+  );
+}
+
 export function CloseIcon(props) {
   return (
     <Svg {...props}>

@@ -1,10 +1,12 @@
 // AppLayout.jsx — enterprise application shell.
-// Sidebar: brand, grouped procurement navigation, Settings/Help, alerts panel.
-// Header: compact — breadcrumb, page title, global search, notification, profile.
+// Sidebar: brand, grouped procurement navigation, Settings/Help, alerts panel;
+// collapsible to an icon rail (state persists via localStorage).
+// Header: compact — breadcrumb, page title, global search (⌘K/ctrl+K focus),
+// notification, profile.
 // Active nav: brighter surface + blue left indicator + subtle glow.
-// On mobile the sidebar becomes an overlay drawer.
+// On mobile the sidebar becomes an overlay drawer with body scroll-lock.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -16,6 +18,7 @@ import {
   LensLogo,
   ListIcon,
   MenuIcon,
+  PanelIcon,
   SearchIcon,
   UploadIcon,
 } from "./ui/Icons";
@@ -43,14 +46,14 @@ const TITLES = {
   "/analytics": ["Analytics", "Supplier and detection analysis"],
 };
 
-function NavItem({ item, onNavigate }) {
+function NavItem({ item, collapsed = false }) {
   const Icon = item.icon;
   const className = ({ isActive }) =>
     `group relative flex items-center gap-2.5 rounded-control px-3 py-2 text-small font-medium transition-colors ${
       isActive
         ? "active bg-surface-hover text-text-primary glow-accent"
         : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
-    }`;
+    } ${collapsed ? "justify-center px-0" : ""}`;
 
   const inner = (
     <>
@@ -71,13 +74,21 @@ function NavItem({ item, onNavigate }) {
 
   if (item.to.startsWith("#")) {
     return (
-      <span className={`${className({ isActive: false })} cursor-not-allowed opacity-60`}>
+      <span
+        title={collapsed ? item.label : undefined}
+        className={`${className({ isActive: false })} cursor-not-allowed opacity-60`}
+      >
         {inner}
       </span>
     );
   }
   return (
-    <NavLink to={item.to} end={item.to === "/dashboard"} className={className}>
+    <NavLink
+      to={item.to}
+      end={item.to === "/dashboard"}
+      title={collapsed ? item.label : undefined}
+      className={className}
+    >
       {inner}
     </NavLink>
   );
@@ -85,6 +96,10 @@ function NavItem({ item, onNavigate }) {
 
 export default function AppLayout({ children, flaggedCount }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [railCollapsed, setRailCollapsed] = useState(
+    () => localStorage.getItem("leaklens.rail") === "1",
+  );
+  const searchRef = useRef(null);
   const location = useLocation();
   const [crumb, title] = TITLES[location.pathname] || ["LeakLens", "Procurement intelligence"];
 
@@ -92,31 +107,72 @@ export default function AppLayout({ children, flaggedCount }) {
     setMobileOpen(false);
   }, [location.pathname]);
 
+  // Body scroll-lock while the mobile drawer is open.
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  // ⌘K / Ctrl+K focuses global search.
+  useEffect(() => {
+    function onKey(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const toggleRail = () => {
+    setRailCollapsed((v) => {
+      localStorage.setItem("leaklens.rail", v ? "0" : "1");
+      return !v;
+    });
+  };
+
   const sidebarBody = (
     <>
-      {/* Brand */}
-      <div className="flex items-center gap-2.5 px-5 py-5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-elevated text-accent">
-          <LensLogo size={19} />
-        </span>
-        <div className="min-w-0">
-          <p className="text-[15px] font-semibold leading-tight tracking-tight text-text-primary">
-            LeakLens
-          </p>
-          <p className="overline mt-0.5">Procurement Intelligence</p>
-        </div>
+      {/* Brand + rail toggle */}
+      <div className="flex items-center justify-between gap-2 px-4 py-5">
+        <Link to="/" className="flex min-w-0 items-center gap-2.5" aria-label="LeakLens home">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-elevated text-accent">
+            <LensLogo size={19} />
+          </span>
+          {!railCollapsed && (
+            <span className="min-w-0">
+              <span className="block text-[15px] font-semibold leading-tight tracking-tight text-text-primary">
+                LeakLens
+              </span>
+              <span className="overline mt-0.5 block">Procurement Intelligence</span>
+            </span>
+          )}
+        </Link>
+        <button
+          type="button"
+          onClick={toggleRail}
+          aria-label={railCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-pressed={railCollapsed}
+          className="hidden rounded-control p-1.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary lg:block"
+        >
+          <PanelIcon size={15} />
+        </button>
       </div>
 
       {/* Primary navigation */}
       <nav className="flex flex-1 flex-col gap-0.5 px-3" aria-label="Primary">
-        <p className="overline px-3 pb-2 pt-1">Analysis</p>
+        {!railCollapsed && <p className="overline px-3 pb-2 pt-1">Analysis</p>}
         {NAV_MAIN.map((item) => (
-          <NavItem key={item.label} item={item} />
+          <NavItem key={item.label} item={item} collapsed={railCollapsed} />
         ))}
 
-        <p className="overline mt-5 px-3 pb-2">System</p>
+        {!railCollapsed && <p className="overline mt-5 px-3 pb-2">System</p>}
+        {railCollapsed && <div className="mt-5 border-t border-border" />}
         {NAV_SECONDARY.map((item) => (
-          <NavItem key={item.label} item={item} />
+          <NavItem key={item.label} item={item} collapsed={railCollapsed} />
         ))}
       </nav>
 
@@ -145,8 +201,12 @@ export default function AppLayout({ children, flaggedCount }) {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* ---------- Sidebar (desktop) ---------- */}
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-background-2 lg:flex">
+      {/* ---------- Sidebar (desktop, collapsible) ---------- */}
+      <aside
+        className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-background-2 transition-[width] duration-200 lg:flex ${
+          railCollapsed ? "w-[68px]" : "w-60"
+        }`}
+      >
         {sidebarBody}
       </aside>
 
@@ -187,6 +247,14 @@ export default function AppLayout({ children, flaggedCount }) {
           >
             <MenuIcon size={18} />
           </button>
+          <button
+            type="button"
+            className="hidden rounded-control p-1.5 text-text-muted hover:bg-surface-hover hover:text-text-primary lg:block"
+            onClick={toggleRail}
+            aria-label={railCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            <PanelIcon size={15} />
+          </button>
 
           {/* Breadcrumb + page title */}
           <div className="flex min-w-0 items-center gap-2 text-caption">
@@ -203,9 +271,13 @@ export default function AppLayout({ children, flaggedCount }) {
             <label className="hidden items-center gap-2 rounded-control border border-border bg-surface px-3 py-1.5 text-small text-text-muted focus-within:border-border-strong md:flex lg:w-64">
               <SearchIcon size={14} />
               <input
+                ref={searchRef}
                 placeholder="Search transactions…"
                 className="w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted"
               />
+              <kbd className="tnum rounded border border-border px-1 text-[10px] text-text-muted">
+                ⌘K
+              </kbd>
             </label>
             <button
               type="button"
