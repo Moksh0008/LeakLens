@@ -5,7 +5,7 @@
 // Content column is capped at 1440px with generous gutters.
 
 import { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation, Link } from "react-router-dom";
+import { NavLink, useLocation, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   AlertIcon,
@@ -21,6 +21,7 @@ import {
   SearchIcon,
   UploadIcon,
 } from "./ui/Icons";
+import SidePanel from "./SidePanel";
 
 const NAV_MAIN = [
   { to: "/home", label: "Home", icon: HomeIcon },
@@ -116,9 +117,16 @@ export default function AppLayout({ children, flaggedCount }) {
   const [railCollapsed, setRailCollapsed] = useState(
     () => localStorage.getItem("leaklens.rail") === "1",
   );
+  const [sidePanel, setSidePanel] = useState(null); // "settings" | "help" | null
   const searchRef = useRef(null);
+  const navigate = useNavigate();
   const location = useLocation();
   const [crumb, title] = TITLES[location.pathname] || ["LeakLens", "Procurement intelligence"];
+
+  // Close the side panel on navigation.
+  useEffect(() => {
+    setSidePanel(null);
+  }, [location.pathname]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -181,9 +189,29 @@ export default function AppLayout({ children, flaggedCount }) {
         )}
         {railCollapsed && <div className="mx-1 mt-8 border-t border-border" />}
         <div className="flex flex-col gap-1">
-          {NAV_SECONDARY.map((item) => (
-            <NavItem key={item.label} item={item} collapsed={railCollapsed} />
-          ))}
+          {NAV_SECONDARY.map((item) => {
+            const key = item.label.toLowerCase();
+            const active = sidePanel === key;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => setSidePanel(active ? null : key)}
+                aria-expanded={active}
+                title={railCollapsed ? item.label : undefined}
+                className={`flex items-center gap-3 rounded-control px-3 py-2.5 text-small font-medium transition-colors ${
+                  railCollapsed ? "justify-center px-0" : ""
+                } ${
+                  active
+                    ? "bg-accent-soft text-text-primary"
+                    : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+                }`}
+              >
+                <item.icon size={16} />
+                {!railCollapsed && <span className="flex-1 truncate text-left">{item.label}</span>}
+              </button>
+            );
+          })}
         </div>
       </nav>
 
@@ -276,21 +304,31 @@ export default function AppLayout({ children, flaggedCount }) {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
-              <label className="hidden items-center gap-2.5 rounded-control border border-border bg-surface px-3.5 py-2 text-small text-text-muted transition-colors focus-within:border-border-strong md:flex lg:w-60">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const q = searchRef.current?.value.trim();
+                  if (q) navigate(`/transactions?q=${encodeURIComponent(q)}`);
+                }}
+                className="hidden items-center gap-2.5 rounded-control border border-border bg-surface px-3.5 py-2 text-small text-text-muted transition-colors focus-within:border-border-strong md:flex lg:w-60"
+              >
                 <SearchIcon size={14} />
                 <input
                   ref={searchRef}
                   placeholder="Search transactions…"
+                  aria-label="Search transactions"
                   className="w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted"
                 />
                 <kbd className="tnum rounded border border-border px-1 text-[10px] text-text-muted">
                   ⌘K
                 </kbd>
-              </label>
+              </form>
               <button
                 type="button"
+                onClick={() => navigate("/investigation")}
                 className="relative rounded-control p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                aria-label="Notifications"
+                aria-label={`Notifications — ${flaggedCount ?? 0} transactions require investigation`}
+                title="Transactions requiring investigation"
               >
                 <AlertIcon size={16} />
                 {flaggedCount > 0 && (
@@ -307,10 +345,25 @@ export default function AppLayout({ children, flaggedCount }) {
           </div>
         </header>
 
-        <main className="flex-1 pb-16 pt-8">
+        <main
+          className={`flex-1 pb-16 pt-8 transition-[margin] duration-200 ${
+            sidePanel
+              ? railCollapsed
+                ? "lg:ml-[392px]"
+                : "lg:ml-80"
+              : ""
+          }`}
+        >
           <div className="content-shell">{children}</div>
         </main>
       </div>
+
+      {/* Standing Settings / Help panel beside the sidebar */}
+      <SidePanel
+        panel={sidePanel}
+        onClose={() => setSidePanel(null)}
+        positionClass={railCollapsed ? "lg:left-[72px]" : "lg:left-56"}
+      />
     </div>
   );
 }

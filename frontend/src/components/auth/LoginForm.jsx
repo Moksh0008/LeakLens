@@ -19,6 +19,9 @@ export default function LoginForm() {
   const [values, setValues] = useState({ email: "", password: "", remember: false });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [showReset, setShowReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetSent, setResetSent] = useState(false);
 
   function set(field, value) {
     setValues((v) => ({ ...v, [field]: value }));
@@ -93,11 +96,47 @@ export default function LoginForm() {
         </label>
         <button
           type="button"
+          onClick={() => setShowReset((v) => !v)}
+          aria-expanded={showReset}
           className="text-small text-accent transition-colors hover:text-accent-strong"
         >
           Forgot password?
         </button>
       </div>
+
+      {/* Inline reset request — mock until the backend provides the flow */}
+      {showReset && (
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col gap-3 rounded-control border border-border bg-surface-elevated p-4"
+        >
+          <p className="text-small text-text-secondary">
+            Enter your work email and we&apos;ll send reset instructions.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="email"
+              value={resetEmail}
+              onChange={(e) => {
+                setResetEmail(e.target.value);
+                setResetSent(false);
+              }}
+              placeholder="you@company.com"
+              aria-label="Reset email"
+              className="h-10 flex-1 rounded-control border border-border bg-surface px-3 text-small text-text-primary outline-none transition-colors placeholder:text-text-muted focus:border-accent"
+            />
+            <Button variant="secondary" size="sm" type="button" onClick={() => setResetSent(true)}>
+              Send link
+            </Button>
+          </div>
+          {resetSent && (
+            <p role="status" className="text-caption text-success">
+              If an account exists for {resetEmail || "that address"}, a reset link is on its way.
+            </p>
+          )}
+        </motion.div>
+      )}
 
       <Button type="submit" variant="primary" disabled={submitting} className="h-11 w-full">
         {submitting ? (

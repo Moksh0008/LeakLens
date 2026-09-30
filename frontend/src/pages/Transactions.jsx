@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { getTransactions } from "../services/api";
 import { useFetch } from "../hooks/useFetch";
 import { formatCompactINR, formatDate, formatINR } from "../utils/format";
@@ -12,7 +12,9 @@ const SEVERITIES = ["ALL", "HIGH", "MEDIUM", "LOW"];
 export default function Transactions() {
   const navigate = useNavigate();
   const { data, loading, error, refetch } = useFetch(getTransactions, []);
-  const [query, setQuery] = useState("");
+  // Header search lands here with ?q=… — seed the filter from it.
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [severity, setSeverity] = useState("ALL");
 
   const filtered = useMemo(() => {
