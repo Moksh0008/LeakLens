@@ -11,7 +11,10 @@ import { AlertIcon, SearchIcon } from "../components/ui/Icons";
  * Investigation page — the "why was this flagged?" view.
  * Left: list of flagged transactions. Right: full reason + evidence for
  * the selected one. Deep-linkable via /investigation state from the
- * dashboard table, or via ?tx=TX1045 in the URL.
+ * dashboard/transactions tables, or via ?tx=TX1045 in the URL.
+ *
+ * Styling follows the dark design system: surface panels, token colors,
+ * danger tint reserved for leakage figures, warning tint for the reason.
  */
 export default function Investigation() {
   const location = useLocation();
@@ -51,24 +54,24 @@ export default function Investigation() {
     return <ErrorPanel message={leakageList.error.message} onRetry={leakageList.refetch} />;
 
   return (
-    <div className="mx-auto flex max-w-[1400px] flex-col gap-5">
+    <div className="mx-auto flex max-w-[1400px] flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-ink-900">Investigation</h1>
-        <p className="mt-0.5 text-sm text-ink-400">
+        <h1 className="text-heading font-semibold text-text-primary">Investigation</h1>
+        <p className="mt-1 text-body text-text-secondary">
           Review flagged transactions — reason, evidence and estimated impact
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[340px_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[340px_1fr]">
         {/* ---------- Left: flagged list ---------- */}
         <div className="flex flex-col gap-3">
-          <label className="flex items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-small">
-            <SearchIcon size={15} className="text-ink-400" />
+          <label className="flex items-center gap-2.5 rounded-control border border-border bg-surface px-3.5 py-2.5 text-small transition-colors focus-within:border-border-strong">
+            <SearchIcon size={15} className="shrink-0 text-text-muted" />
             <input
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder="Filter flagged transactions…"
-              className="w-full bg-transparent text-ink-700 outline-none placeholder:text-ink-400"
+              className="w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted"
             />
           </label>
 
@@ -76,29 +79,46 @@ export default function Investigation() {
             {filtered.length === 0 && (
               <EmptyPanel message="No matching flagged transactions" />
             )}
-            {filtered.map((t) => (
-              <button
-                key={t.transactionId}
-                type="button"
-                onClick={() => setSelectedId(t.transactionId)}
-                className={`flex items-center justify-between gap-2 px-4 py-3 text-left transition ${
-                  selectedId === t.transactionId ? "bg-brand-50" : "hover:bg-ink-50"
-                }`}
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-ink-800">
-                    {t.transactionId} · {t.product}
-                  </p>
-                  <p className="truncate text-xs text-ink-400">{t.supplier}</p>
-                </div>
-                <div className="flex shrink-0 flex-col items-end gap-1">
-                  <span className="tnum text-sm font-semibold text-red-600">
-                    {formatCompactINR(t.potentialLeakage)}
-                  </span>
-                  <SeverityBadge severity={t.severity} size="sm" />
-                </div>
-              </button>
-            ))}
+            {filtered.map((t) => {
+              const active = selectedId === t.transactionId;
+              return (
+                <button
+                  key={t.transactionId}
+                  type="button"
+                  onClick={() => setSelectedId(t.transactionId)}
+                  aria-current={active ? "true" : undefined}
+                  className={`relative flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors duration-150 ${
+                    active
+                      ? "bg-accent-soft"
+                      : "hover:bg-surface-hover"
+                  }`}
+                >
+                  {/* quiet active indicator, mirroring the sidebar */}
+                  <span
+                    aria-hidden="true"
+                    className={`absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-accent transition-opacity ${
+                      active ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  <div className="min-w-0">
+                    <p
+                      className={`tnum truncate text-small font-medium ${
+                        active ? "text-text-primary" : "text-text-secondary"
+                      }`}
+                    >
+                      {t.transactionId} · {t.product}
+                    </p>
+                    <p className="truncate text-caption text-text-muted">{t.supplier}</p>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <span className="tnum text-small font-semibold text-danger">
+                      {formatCompactINR(t.potentialLeakage)}
+                    </span>
+                    <SeverityBadge severity={t.severity} size="sm" />
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -114,9 +134,9 @@ export default function Investigation() {
 
           {!detail.loading && !detail.error && !detail.data && (
             <div className="flex h-full min-h-[420px] flex-col items-center justify-center gap-2 text-center">
-              <SearchIcon size={26} className="text-ink-300" />
-              <p className="font-medium text-ink-600">Select a transaction to investigate</p>
-              <p className="max-w-xs text-sm text-ink-400">
+              <SearchIcon size={26} className="text-text-muted" />
+              <p className="font-medium text-text-primary">Select a transaction to investigate</p>
+              <p className="max-w-xs text-small text-text-secondary">
                 Pick any flagged transaction to see the detection reason, price evidence and
                 estimated financial impact.
               </p>
@@ -126,15 +146,13 @@ export default function Investigation() {
           {!detail.loading && !detail.error && detail.data && (
             <div className="flex flex-col">
               {/* Detail header */}
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink-100 px-5 py-4">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-6 py-5">
                 <div>
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">
-                    Transaction
-                  </p>
-                  <p className="tnum text-lg font-semibold text-ink-900">
+                  <p className="overline">Transaction</p>
+                  <p className="tnum mt-1 text-heading font-semibold leading-tight text-text-primary">
                     {detail.data.transactionId}
                   </p>
-                  <p className="mt-0.5 text-sm text-ink-500">
+                  <p className="mt-1 text-small text-text-secondary">
                     {detail.data.product} · {detail.data.supplier} · {formatDate(detail.data.date)}
                   </p>
                 </div>
@@ -144,7 +162,7 @@ export default function Investigation() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 px-5 py-4 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 px-6 py-5 sm:grid-cols-3">
                 <EvidenceStat
                   label="Actual unit price"
                   value={formatINR(detail.data.actualPrice)}
@@ -162,38 +180,38 @@ export default function Investigation() {
                 />
               </div>
 
-              {/* Reason */}
-              <div className="mx-5 mb-4 flex gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
-                <AlertIcon size={18} className="mt-0.5 shrink-0 text-amber-600" />
+              {/* Reason — dark warning panel, amber kept to tint + text */}
+              <div className="mx-6 mb-5 flex gap-3 rounded-control border border-warning/25 bg-warning/8 p-4">
+                <AlertIcon size={18} className="mt-0.5 shrink-0 text-warning" />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
-                    Why this was flagged
+                  <p className="overline text-warning">Why this was flagged</p>
+                  <p className="mt-1 text-small leading-relaxed text-text-secondary">
+                    {detail.data.reason}
                   </p>
-                  <p className="mt-1 text-sm text-amber-900">{detail.data.reason}</p>
                 </div>
               </div>
 
               {/* Calculation breakdown */}
-              <div className="border-t border-ink-100 px-5 py-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">
-                  Impact calculation
-                </p>
-                <div className="tnum mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-600">
-                  <span className="font-medium text-red-600">{formatINR(detail.data.actualPrice)}</span>
-                  <span>actual −</span>
-                  <span>{formatINR(detail.data.benchmarkPrice)} benchmark</span>
-                  <span>=</span>
-                  <span>
-                    {formatINR(detail.data.actualPrice - detail.data.benchmarkPrice)} per unit
+              <div className="border-t border-border px-6 py-5">
+                <p className="overline">Impact calculation</p>
+                <div className="tnum mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-small text-text-secondary">
+                  <span className="font-medium text-danger">
+                    {formatINR(detail.data.actualPrice)}
                   </span>
-                  <span>×</span>
-                  <span>{detail.data.quantity} units</span>
-                  <span>=</span>
-                  <span className="font-semibold text-red-600">
+                  <span className="text-text-muted">actual −</span>
+                  <span className="text-text-primary">{formatINR(detail.data.benchmarkPrice)}</span>
+                  <span className="text-text-muted">benchmark =</span>
+                  <span className="text-text-primary">
+                    {formatINR(detail.data.actualPrice - detail.data.benchmarkPrice)}
+                  </span>
+                  <span className="text-text-muted">per unit ×</span>
+                  <span className="text-text-primary">{detail.data.quantity}</span>
+                  <span className="text-text-muted">units =</span>
+                  <span className="font-semibold text-danger">
                     {formatINR(detail.data.potentialLeakage)} potential leakage
                   </span>
                 </div>
-                <p className="mt-3 text-xs text-ink-400">
+                <p className="mt-3 text-caption text-text-muted">
                   Estimated from historical price benchmarks for this product category.
                 </p>
               </div>
@@ -206,17 +224,18 @@ export default function Investigation() {
 }
 
 function EvidenceStat({ label, value, tone, emphasis }) {
+  const isDanger = tone === "danger";
   return (
     <div
-      className={`rounded-lg border p-3.5 ${
-        tone === "danger" ? "border-red-100 bg-red-50/60" : "border-ink-100 bg-ink-50/50"
+      className={`rounded-control border p-4 ${
+        isDanger ? "border-danger/20 bg-danger/8" : "border-border bg-surface-elevated/60"
       }`}
     >
-      <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">{label}</p>
+      <p className="overline">{label}</p>
       <p
-        className={`tnum mt-1 ${emphasis ? "text-lg font-semibold" : "text-base font-medium"} ${
-          tone === "danger" ? "text-red-600" : "text-ink-800"
-        }`}
+        className={`tnum mt-2 leading-none ${
+          emphasis ? "text-[22px] font-semibold" : "text-[17px] font-medium"
+        } ${isDanger ? "text-danger" : "text-text-primary"}`}
       >
         {value}
       </p>
