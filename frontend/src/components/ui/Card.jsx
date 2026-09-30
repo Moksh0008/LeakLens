@@ -12,7 +12,7 @@ export default function Card({
   return (
     <Tag
       className={`rounded-card border border-border bg-surface shadow-[var(--shadow-card)] ${
-        hover ? "transition-colors duration-150 hover:border-border-strong hover:bg-surface-elevated" : ""
+        hover ? "transition-colors duration-200 hover:border-border-strong" : ""
       } ${className}`}
       {...props}
     >

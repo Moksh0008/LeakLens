@@ -27,21 +27,21 @@ export default function SpendLeakageChart({ data, height = 300 }) {
         <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id="spendFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={SERIES_BLUE} stopOpacity={0.28} />
-              <stop offset="100%" stopColor={SERIES_BLUE} stopOpacity={0.02} />
+              <stop offset="0%" stopColor={SERIES_BLUE} stopOpacity={0.18} />
+              <stop offset="100%" stopColor={SERIES_BLUE} stopOpacity={0.01} />
             </linearGradient>
           </defs>
           <CartesianGrid stroke={GRID_COLOR} vertical={false} />
-          <XAxis dataKey="month" tick={AXIS_TICK} tickLine={false} axisLine={false} />
+          <XAxis dataKey="month" tick={AXIS_TICK} tickLine={false} axisLine={false} dy={8} />
           <YAxis
             tick={AXIS_TICK}
             tickLine={false}
             axisLine={false}
-            width={60}
+            width={64}
             tickFormatter={(v) => formatCompactINR(v)}
           />
           <Tooltip
-            cursor={{ stroke: "#303744", strokeDasharray: "3 3" }}
+            cursor={{ stroke: "rgba(255,255,255,0.14)", strokeDasharray: "3 3" }}
             content={<ChartTooltip valueFormatter={formatCompactINR} />}
           />
           <Area
@@ -49,7 +49,7 @@ export default function SpendLeakageChart({ data, height = 300 }) {
             dataKey="spend"
             name="Spend"
             stroke={SERIES_BLUE}
-            strokeWidth={2}
+            strokeWidth={1.8}
             fill="url(#spendFill)"
             activeDot={{ r: 3 }}
           />
@@ -58,7 +58,7 @@ export default function SpendLeakageChart({ data, height = 300 }) {
             dataKey="leakage"
             name="Potential Leakage"
             stroke={LEAKAGE_COLOR}
-            strokeWidth={2}
+            strokeWidth={1.8}
             dot={false}
             activeDot={{ r: 3 }}
           />

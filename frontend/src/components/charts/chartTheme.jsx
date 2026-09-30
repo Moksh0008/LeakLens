@@ -1,32 +1,24 @@
-// chartTheme.jsx — shared Recharts styling for the dark financial theme.
-// Blue = primary series, purple = secondary series. Green/yellow/red are
-// reserved for semantic exceptions (severity, positive/negative movement).
+// chartTheme.jsx — shared Recharts styling. Restrained and calm:
+// thin hairline grids, one blue primary series, purple secondary only
+// when necessary, red reserved for leakage/problem data.
 
-export const AXIS_TICK = { fill: "#707988", fontSize: 11 };
-export const GRID_COLOR = "#242a34";
+export const AXIS_TICK = { fill: "#737b87", fontSize: 11 };
+export const GRID_COLOR = "rgba(255, 255, 255, 0.05)";
 
-/** Primary series ramp — blue, with purple as the secondary accent. */
-export const SERIES_BLUE = "#3b82f6";
-export const SERIES_PURPLE = "#8b7cf6";
-export const BAR_COLORS = [
-  "#3b82f6",
-  "#5d9bff",
-  "#8b7cf6",
-  "#38bdf8",
-  "#2559be",
-  "#a5b8ff",
-];
+export const SERIES_BLUE = "#4f7ff7";
+export const SERIES_PURPLE = "#8a7cf0";
+export const BAR_COLORS = ["#4f7ff7", "#658ff8", "#8a7cf0", "#58b8e8", "#3459ba", "#a5b8ff"];
 
 /** Semantic exception colours (severity, movement). */
-export const SEVERITY_COLORS = { LOW: "#22c55e", MEDIUM: "#eab308", HIGH: "#ef4444" };
-export const SPEND_COLOR = "#3b82f6";
-export const LEAKAGE_COLOR = "#ef4444";
+export const SEVERITY_COLORS = { LOW: "#3dbb72", MEDIUM: "#d9a92e", HIGH: "#d95c55" };
+export const SPEND_COLOR = "#4f7ff7";
+export const LEAKAGE_COLOR = "#d95c55";
 
 /** Custom tooltip — dark panel, tabular numbers. */
 export function ChartTooltip({ active, payload, label, valueFormatter }) {
   if (!active || !payload || !payload.length) return null;
   return (
-    <div className="rounded-lg border border-border-strong bg-surface-elevated px-3 py-2 shadow-[var(--shadow-pop)]">
+    <div className="rounded-control border border-border-strong bg-surface-elevated px-3 py-2.5 shadow-[var(--shadow-pop)]">
       {label !== undefined && (
         <p className="text-[11px] font-medium text-text-muted">{label}</p>
       )}

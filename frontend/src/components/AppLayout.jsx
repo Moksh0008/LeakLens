@@ -1,10 +1,8 @@
-// AppLayout.jsx — enterprise application shell.
-// Sidebar: brand, grouped procurement navigation, Settings/Help, alerts panel;
-// collapsible to an icon rail (state persists via localStorage).
-// Header: compact — breadcrumb, page title, global search (⌘K/ctrl+K focus),
-// notification, profile.
-// Active nav: brighter surface + blue left indicator + subtle glow.
-// On mobile the sidebar becomes an overlay drawer with body scroll-lock.
+// AppLayout.jsx — refined enterprise application shell.
+// Sidebar: quiet, 224px, collapsible to an icon rail (persisted).
+// Header: 64px, breadcrumb + title + search (⌘K) + alerts + profile.
+// Active nav: soft blue tint + small indicator — never glowing.
+// Content column is capped at 1440px with generous gutters.
 
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, Link } from "react-router-dom";
@@ -44,30 +42,35 @@ const TITLES = {
   "/upload": ["Data Import", "Upload procurement CSV for analysis"],
   "/investigation": ["Investigation", "Flagged transaction evidence"],
   "/analytics": ["Analytics", "Supplier and detection analysis"],
+  "/price-benchmarking": ["Price Benchmarking", "Benchmark prices across suppliers"],
+  "/supplier-analysis": ["Supplier Analysis", "Spend concentration and overlap"],
+  "/contracts": ["Contracts & Discounts", "Contract terms and exceptions"],
+  "/leakage": ["Leakage Analysis", "Leakage patterns in depth"],
 };
 
 function NavItem({ item, collapsed = false }) {
   const Icon = item.icon;
   const className = ({ isActive }) =>
-    `group relative flex items-center gap-2.5 rounded-control px-3 py-2 text-small font-medium transition-colors ${
+    `relative flex items-center gap-3 rounded-control text-small font-medium transition-colors duration-150 ${
+      collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2.5"
+    } ${
       isActive
-        ? "active bg-surface-hover text-text-primary glow-accent"
+        ? "bg-accent-soft text-text-primary"
         : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
-    } ${collapsed ? "justify-center px-0" : ""}`;
+    }`;
 
   const inner = (
     <>
-      {/* Blue left indicator for the active item */}
-      <span
-        aria-hidden="true"
-        className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-accent transition-opacity duration-150 opacity-0 group-[.active]:opacity-100"
-      />
-      <Icon size={16} className={item.soon ? "opacity-60" : ""} />
-      <span className="flex-1 truncate">{item.label}</span>
-      {item.soon && (
-        <span className="rounded-full border border-border px-1.5 py-px text-[10px] text-text-muted">
-          soon
-        </span>
+      {/* Small accent indicator for the active item — a whisper, not a glow */}
+      {isActiveBar(item)}
+      <Icon size={16} className={item.soon ? "opacity-50" : ""} />
+      {!collapsed && (
+        <>
+          <span className="flex-1 truncate">{item.label}</span>
+          {item.soon && (
+            <span className="text-[10px] text-text-muted">soon</span>
+          )}
+        </>
       )}
     </>
   );
@@ -76,7 +79,7 @@ function NavItem({ item, collapsed = false }) {
     return (
       <span
         title={collapsed ? item.label : undefined}
-        className={`${className({ isActive: false })} cursor-not-allowed opacity-60`}
+        className={`${className({ isActive: false })} cursor-not-allowed opacity-50`}
       >
         {inner}
       </span>
@@ -94,6 +97,17 @@ function NavItem({ item, collapsed = false }) {
   );
 }
 
+// Renders the 2px left indicator only when the NavLink is active.
+function isActiveBar(item) {
+  if (item.to.startsWith("#")) return null;
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-accent opacity-0 [.active_&]:opacity-100"
+    />
+  );
+}
+
 export default function AppLayout({ children, flaggedCount }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [railCollapsed, setRailCollapsed] = useState(
@@ -107,7 +121,6 @@ export default function AppLayout({ children, flaggedCount }) {
     setMobileOpen(false);
   }, [location.pathname]);
 
-  // Body scroll-lock while the mobile drawer is open.
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => {
@@ -115,7 +128,6 @@ export default function AppLayout({ children, flaggedCount }) {
     };
   }, [mobileOpen]);
 
-  // ⌘K / Ctrl+K focuses global search.
   useEffect(() => {
     function onKey(e) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -136,62 +148,66 @@ export default function AppLayout({ children, flaggedCount }) {
 
   const sidebarBody = (
     <>
-      {/* Brand + rail toggle */}
-      <div className="flex items-center justify-between gap-2 px-4 py-5">
-        <Link to="/" className="flex min-w-0 items-center gap-2.5" aria-label="LeakLens home">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-elevated text-accent">
-            <LensLogo size={19} />
+      {/* Brand */}
+      <div className="flex items-center justify-between px-5 py-6">
+        <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="LeakLens home">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control border border-border bg-surface-elevated text-accent">
+            <LensLogo size={18} />
           </span>
           {!railCollapsed && (
             <span className="min-w-0">
               <span className="block text-[15px] font-semibold leading-tight tracking-tight text-text-primary">
                 LeakLens
               </span>
-              <span className="overline mt-0.5 block">Procurement Intelligence</span>
+              <span className="overline mt-0.5 block text-[10px]">Procurement Intelligence</span>
             </span>
           )}
         </Link>
-        <button
-          type="button"
-          onClick={toggleRail}
-          aria-label={railCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-pressed={railCollapsed}
-          className="hidden rounded-control p-1.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary lg:block"
-        >
-          <PanelIcon size={15} />
-        </button>
+        {!railCollapsed && (
+          <button
+            type="button"
+            onClick={toggleRail}
+            aria-label="Collapse sidebar"
+            className="hidden rounded-control p-1.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary lg:block"
+          >
+            <PanelIcon size={15} />
+          </button>
+        )}
       </div>
 
-      {/* Primary navigation */}
+      {/* Navigation */}
       <nav className="flex flex-1 flex-col gap-0.5 px-3" aria-label="Primary">
-        {!railCollapsed && <p className="overline px-3 pb-2 pt-1">Analysis</p>}
-        {NAV_MAIN.map((item) => (
-          <NavItem key={item.label} item={item} collapsed={railCollapsed} />
-        ))}
+        {!railCollapsed && <p className="overline px-3 pb-2 pt-2 text-[10px]">Analysis</p>}
+        <div className="flex flex-col gap-1">
+          {NAV_MAIN.map((item) => (
+            <NavItem key={item.label} item={item} collapsed={railCollapsed} />
+          ))}
+        </div>
 
-        {!railCollapsed && <p className="overline mt-5 px-3 pb-2">System</p>}
-        {railCollapsed && <div className="mt-5 border-t border-border" />}
-        {NAV_SECONDARY.map((item) => (
-          <NavItem key={item.label} item={item} collapsed={railCollapsed} />
-        ))}
+        {!railCollapsed && (
+          <p className="overline mt-8 px-3 pb-2 text-[10px]">System</p>
+        )}
+        {railCollapsed && <div className="mx-1 mt-8 border-t border-border" />}
+        <div className="flex flex-col gap-1">
+          {NAV_SECONDARY.map((item) => (
+            <NavItem key={item.label} item={item} collapsed={railCollapsed} />
+          ))}
+        </div>
       </nav>
 
-      {/* Leakage alerts panel */}
-      <div className="p-4">
+      {/* Alerts — quiet card, only red is the small count */}
+      <div className="px-4 pb-5 pt-2">
         <Link
           to="/investigation"
-          className="block rounded-card border border-border bg-surface-elevated p-3.5 transition-colors hover:border-border-strong"
+          className="block rounded-card border border-border bg-surface p-4 transition-colors hover:border-border-strong"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AlertIcon size={15} className="text-danger" />
-              <p className="text-small font-medium text-text-primary">Leakage alerts</p>
-            </div>
-            <span className="tnum rounded-full bg-danger/15 px-2 py-0.5 text-[11px] font-semibold text-danger">
+            <p className="text-small font-medium text-text-primary">Leakage alerts</p>
+            <span className="tnum text-small font-semibold text-danger">
               {flaggedCount ?? "—"}
             </span>
           </div>
-          <p className="mt-1.5 text-caption text-text-muted">
+          <p className="mt-1 text-caption text-text-muted">
             transactions require investigation
           </p>
         </Link>
@@ -201,10 +217,10 @@ export default function AppLayout({ children, flaggedCount }) {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* ---------- Sidebar (desktop, collapsible) ---------- */}
+      {/* ---------- Sidebar (desktop) ---------- */}
       <aside
         className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-background-2 transition-[width] duration-200 lg:flex ${
-          railCollapsed ? "w-[68px]" : "w-60"
+          railCollapsed ? "w-[72px]" : "w-56"
         }`}
       >
         {sidebarBody}
@@ -214,17 +230,18 @@ export default function AppLayout({ children, flaggedCount }) {
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div
-            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-background/70 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
           <motion.aside
-            initial={{ x: -260 }}
+            initial={{ x: -240 }}
             animate={{ x: 0 }}
-            className="absolute left-0 top-0 flex h-full w-64 flex-col border-r border-border bg-background-2"
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="absolute left-0 top-0 flex h-full w-60 flex-col border-r border-border bg-background-2"
           >
             <button
               type="button"
-              className="absolute right-3 top-5 text-text-muted hover:text-text-primary"
+              className="absolute right-3 top-6 text-text-muted hover:text-text-primary"
               onClick={() => setMobileOpen(false)}
               aria-label="Close menu"
             >
@@ -237,70 +254,70 @@ export default function AppLayout({ children, flaggedCount }) {
 
       {/* ---------- Main column ---------- */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Compact header */}
-        <header className="sticky top-0 z-30 flex h-12 items-center gap-3 border-b border-border bg-background-2/90 px-4 backdrop-blur lg:px-6">
-          <button
-            type="button"
-            className="rounded-control p-1.5 text-text-secondary hover:bg-surface-hover hover:text-text-primary lg:hidden"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open menu"
-          >
-            <MenuIcon size={18} />
-          </button>
-          <button
-            type="button"
-            className="hidden rounded-control p-1.5 text-text-muted hover:bg-surface-hover hover:text-text-primary lg:block"
-            onClick={toggleRail}
-            aria-label={railCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            <PanelIcon size={15} />
-          </button>
-
-          {/* Breadcrumb + page title */}
-          <div className="flex min-w-0 items-center gap-2 text-caption">
-            <span className="text-text-muted">LeakLens</span>
-            <span className="text-border-strong">/</span>
-            <span className="truncate font-medium text-text-secondary">{crumb}</span>
-          </div>
-          <h1 className="hidden text-small font-semibold text-text-primary md:block">
-            {title}
-          </h1>
-
-          {/* Global search */}
-          <div className="ml-auto flex items-center gap-2">
-            <label className="hidden items-center gap-2 rounded-control border border-border bg-surface px-3 py-1.5 text-small text-text-muted focus-within:border-border-strong md:flex lg:w-64">
-              <SearchIcon size={14} />
-              <input
-                ref={searchRef}
-                placeholder="Search transactions…"
-                className="w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted"
-              />
-              <kbd className="tnum rounded border border-border px-1 text-[10px] text-text-muted">
-                ⌘K
-              </kbd>
-            </label>
+        {/* Header — 64px, quiet */}
+        <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
+          <div className="content-shell flex h-16 items-center gap-4">
             <button
               type="button"
-              className="relative rounded-control border border-border bg-surface p-2 text-text-secondary hover:bg-surface-hover hover:text-text-primary"
-              aria-label="Notifications"
+              className="rounded-control p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:hidden"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open menu"
             >
-              <AlertIcon size={15} />
-              {flaggedCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-semibold text-white">
-                  {flaggedCount > 99 ? "99+" : flaggedCount}
-                </span>
-              )}
+              <MenuIcon size={18} />
             </button>
-            <span
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-surface-elevated text-caption font-semibold text-text-secondary"
-              title="Member 1 — Frontend"
+            <button
+              type="button"
+              className="hidden rounded-control p-2 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary lg:block"
+              onClick={toggleRail}
+              aria-label={railCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              M1
-            </span>
+              <PanelIcon size={15} />
+            </button>
+
+            <div className="flex min-w-0 items-baseline gap-2.5">
+              <span className="text-caption text-text-muted">LeakLens</span>
+              <span className="text-border-strong">/</span>
+              <span className="truncate text-caption text-text-secondary">{crumb}</span>
+              <h1 className="hidden text-small font-medium text-text-primary md:block">
+                {title}
+              </h1>
+            </div>
+
+            <div className="ml-auto flex items-center gap-2">
+              <label className="hidden items-center gap-2.5 rounded-control border border-border bg-surface px-3.5 py-2 text-small text-text-muted transition-colors focus-within:border-border-strong md:flex lg:w-60">
+                <SearchIcon size={14} />
+                <input
+                  ref={searchRef}
+                  placeholder="Search transactions…"
+                  className="w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted"
+                />
+                <kbd className="tnum rounded border border-border px-1 text-[10px] text-text-muted">
+                  ⌘K
+                </kbd>
+              </label>
+              <button
+                type="button"
+                className="relative rounded-control p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                aria-label="Notifications"
+              >
+                <AlertIcon size={16} />
+                {flaggedCount > 0 && (
+                  <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-danger" />
+                )}
+              </button>
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-surface-elevated text-caption font-medium text-text-secondary"
+                title="Member 1 — Frontend"
+              >
+                M1
+              </span>
+            </div>
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-5 lg:px-6">{children}</main>
+        <main className="flex-1 pb-16 pt-8">
+          <div className="content-shell">{children}</div>
+        </main>
       </div>
     </div>
   );

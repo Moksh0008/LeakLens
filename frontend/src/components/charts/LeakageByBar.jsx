@@ -29,7 +29,7 @@ export default function LeakageByBar({ data, height = 280 }) {
           data={data}
           layout="vertical"
           margin={{ top: 4, right: 24, bottom: 0, left: 8 }}
-          barCategoryGap="22%"
+          barCategoryGap="32%"
         >
           <CartesianGrid horizontal={false} stroke={GRID_COLOR} />
           <XAxis
@@ -43,7 +43,7 @@ export default function LeakageByBar({ data, height = 280 }) {
             type="category"
             dataKey="name"
             width={130}
-            tick={{ ...AXIS_TICK, fill: "#414a58" }}
+            tick={{ ...AXIS_TICK, fill: "#a3aab5" }}
             tickLine={false}
             axisLine={false}
           />
@@ -51,7 +51,7 @@ export default function LeakageByBar({ data, height = 280 }) {
             cursor={{ fill: "rgba(39,72,223,0.04)" }}
             content={<ChartTooltip valueFormatter={formatCompactINR} />}
           />
-          <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={22}>
+          <Bar dataKey="value" radius={[0, 3, 3, 0]} maxBarSize={16}>
             {data.map((entry, i) => (
               <Cell key={entry.name} fill={BAR_COLORS[i % BAR_COLORS.length]} />
             ))}

@@ -18,13 +18,9 @@ export default function Hero() {
 
   return (
     <section className="relative overflow-hidden">
-      {/* Soft accent wash — single subtle radial, no gradient banners */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(60%_60%_at_50%_0%,var(--accent-soft),transparent_70%)]"
-      />
+      {/* calm: no decorative gradients — whitespace does the work */}
 
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 pb-16 pt-14 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pb-24 lg:pt-20">
+      <div className="mx-auto grid max-w-7xl items-center gap-16 px-4 pb-24 pt-20 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pb-28 lg:pt-24">
         {/* Copy */}
         <div className="max-w-xl">
           <motion.p {...fade(0)} className="overline">

@@ -20,10 +20,7 @@ export default function AuthPlaceholder({ mode = "login" }) {
     <div className="grid min-h-screen bg-background text-text-primary lg:grid-cols-2">
       {/* ---------- Left: brand + value proposition ---------- */}
       <div className="relative hidden flex-col justify-between border-r border-border bg-background-2 p-10 lg:flex">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_40%_at_30%_20%,var(--accent-soft),transparent_70%)]"
-        />
+        {/* intentional calm: no decorative gradients */}
         <Link to="/" className="relative flex items-center gap-2.5">
           <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-elevated text-accent">
             <LensLogo size={19} />
@@ -101,7 +98,7 @@ function Field({ label, type, placeholder }) {
       <input
         type={type}
         placeholder={placeholder}
-        className="h-10 rounded-control border border-border bg-surface-elevated px-3 text-small text-text-primary outline-none transition-colors placeholder:text-text-muted focus:border-accent focus:glow-accent"
+        className="h-10 rounded-control border border-border bg-surface-elevated px-3 text-small text-text-primary outline-none transition-colors placeholder:text-text-muted focus:border-accent"
       />
     </label>
   );

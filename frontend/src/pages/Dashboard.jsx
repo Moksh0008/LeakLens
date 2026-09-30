@@ -1,7 +1,8 @@
 // Dashboard.jsx — Overview page.
-// Answers in order: how much are we spending, where might money be
-// leaking, why, who is involved, what is the impact, what needs review.
-// Layout follows the enterprise spec: KPI row + four analytical rows.
+// Order answers: how much are we spending, how much leakage, what is
+// driving it, who is involved, what needs investigation.
+// Spacious enterprise rhythm: generous gaps, quiet cards, scrolling
+// is intentional — nothing is squeezed to fit one viewport.
 
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -19,16 +20,16 @@ import {
   groupLeakageBy,
   topGroups,
 } from "../utils/aggregate";
-import { formatCompactINR, formatINR } from "../utils/format";
+import { formatCompactINR } from "../utils/format";
 import KpiCards from "../components/dashboard/KpiCards";
-import SectionCard, { HeaderTotals } from "../components/dashboard/SectionCard";
+import SectionCard from "../components/dashboard/SectionCard";
 import HighImpactTable from "../components/dashboard/HighImpactTable";
 import SpendLeakageChart from "../components/charts/SpendLeakageChart";
 import SeverityDonut from "../components/charts/SeverityDonut";
 import LeakageByBar from "../components/charts/LeakageByBar";
 import PriceVarianceChart from "../components/charts/PriceVarianceChart";
 import { ErrorPanel, LoadingPanel } from "../components/ui/States";
-import { DETECTION_LABELS } from "../components/ui/Badges";
+import Badge from "../components/ui/Badge";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -39,8 +40,7 @@ export default function Dashboard() {
   const consolidation = useFetch(getConsolidationOpportunities, []);
   const contractExc = useFetch(getContractExceptions, []);
 
-  const loading =
-    dashboard.loading || leakage.loading || trend.loading;
+  const loading = dashboard.loading || leakage.loading || trend.loading;
   const error = dashboard.error || leakage.error || trend.error;
   const refetch = () => {
     dashboard.refetch();
@@ -50,12 +50,10 @@ export default function Dashboard() {
 
   const charts = useMemo(() => {
     const items = leakage.data || [];
-    const transactions = leakage.data || []; // mock dataset is one array
     return {
-      bySupplier: topGroups(groupLeakageBy(items, "supplier"), 10),
       byCategory: topGroups(groupLeakageBy(items, "category"), 6),
       severity: getSeverityDistribution(items),
-      variance: getSupplierPriceVariance(transactions, 7),
+      variance: getSupplierPriceVariance(items, 6),
     };
   }, [leakage.data]);
 
@@ -65,84 +63,73 @@ export default function Dashboard() {
   const d = dashboard.data;
 
   return (
-    <div className="mx-auto flex max-w-[1600px] flex-col gap-4">
-      {/* Page title + period filter */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="flex flex-col gap-8">
+      {/* Row 1 — page title + period control */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="text-heading text-text-primary">Procurement Overview</h2>
-          <p className="mt-0.5 text-small text-text-secondary">
-            Spend, leakage and investigation status across all analyzed records
+          <h2 className="text-heading font-semibold text-text-primary">
+            Procurement Overview
+          </h2>
+          <p className="mt-1.5 text-body text-text-secondary">
+            Spend, leakage and investigation status across analyzed records
           </p>
         </div>
-        <span className="tnum rounded-control border border-border bg-surface px-3 py-1.5 text-caption text-text-secondary">
-          Feb – Sep 2026 · illustrative demo data
+        <span className="tnum rounded-control border border-border bg-surface px-3.5 py-2 text-caption text-text-secondary">
+          Feb – Sep 2026 · demo data
         </span>
       </div>
 
-      {/* ROW 1 — six KPIs */}
+      {/* Row 2 — four primary KPIs */}
       <KpiCards dashboard={d} />
 
-      {/* ROW 2 — spend vs leakage + severity */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+      {/* Row 3 — primary chart + severity */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <SectionCard
           title="Spend vs Potential Leakage"
           subtitle="Monthly procurement spend and flagged leakage"
           className="xl:col-span-2"
-          delay={0.05}
         >
-          <SpendLeakageChart data={trend.data || []} />
+          <SpendLeakageChart data={trend.data || []} height={300} />
         </SectionCard>
 
-        <SectionCard
-          title="Leakage Severity"
-          subtitle="Flagged amount by severity"
-          delay={0.1}
-        >
-          <SeverityDonut data={charts.severity} />
+        <SectionCard title="Leakage Severity" subtitle="Flagged amount by severity">
+          <SeverityDonut data={charts.severity} height={220} />
         </SectionCard>
       </div>
 
-      {/* ROW 3 — category + supplier variance */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <SectionCard
-          title="Leakage by Category"
-          subtitle="Where spend leaks most"
-          delay={0.12}
-        >
+      {/* Row 4 — drivers */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <SectionCard title="Leakage by Category" subtitle="Where spend leaks most">
           <LeakageByBar data={charts.byCategory} height={260} />
         </SectionCard>
 
         <SectionCard
           title="Supplier Price Variance"
-          subtitle="Avg. premium vs median product price"
-          delay={0.15}
+          subtitle="Average premium vs median product price"
         >
           <PriceVarianceChart data={charts.variance} height={260} />
         </SectionCard>
       </div>
 
-      {/* ROW 4 — high-impact investigation table */}
+      {/* Row 5 — detailed evidence */}
       <SectionCard
         title="High-Impact Transactions"
-        subtitle="Largest potential leakage — click a row to investigate"
-        delay={0.18}
-        action={<HeaderTotals value={d.potentialLeakage} count={d.flaggedTransactions} />}
+        subtitle="Largest potential leakage — select a row to investigate"
       >
         <HighImpactTable
           items={leakage.data || []}
-          limit={8}
+          limit={6}
           onInvestigate={(t) =>
             navigate("/investigation", { state: { transactionId: t.transactionId } })
           }
         />
       </SectionCard>
 
-      {/* ROW 5 — consolidation + contract exceptions */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      {/* Below the fold — additional context */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <SectionCard
           title="Supplier Consolidation Opportunities"
           subtitle="Products sourced from many suppliers — illustrative 6% saving"
-          delay={0.2}
         >
           <MiniTable
             head={["Product", "Suppliers", "Spend", "Potential Saving"]}
@@ -150,7 +137,7 @@ export default function Dashboard() {
               <span key="p" className="text-text-primary">{c.product}</span>,
               <span key="s" className="tnum">{c.supplierCount}</span>,
               <span key="sp" className="tnum">{formatCompactINR(c.spend)}</span>,
-              <span key="sv" className="tnum font-medium text-success">
+              <span key="sv" className="tnum text-success">
                 {formatCompactINR(c.potentialSaving)}
               </span>,
             ])}
@@ -161,17 +148,16 @@ export default function Dashboard() {
         <SectionCard
           title="Contract & Discount Exceptions"
           subtitle="Purchases outside expected terms"
-          delay={0.22}
         >
           <MiniTable
             head={["Transaction", "Supplier", "Exception", "Potential Impact"]}
             rows={(contractExc.data || []).map((e) => [
               <span key="t" className="tnum text-text-primary">{e.transactionId}</span>,
               <span key="s">{e.supplier}</span>,
-              <span key="ty" className="text-warning">
-                {e.type === "Out-of-Contract" ? "Out-of-Contract" : "Missed Discount"}
-              </span>,
-              <span key="i" className="tnum font-medium text-danger">
+              <Badge key="ty" variant={e.type === "Out-of-Contract" ? "MEDIUM" : "accent"}>
+                {e.type}
+              </Badge>,
+              <span key="i" className="tnum text-danger">
                 {formatCompactINR(e.potentialImpact)}
               </span>,
             ])}
@@ -180,17 +166,17 @@ export default function Dashboard() {
         </SectionCard>
       </div>
 
-      <p className="pb-2 text-caption text-text-muted">
-        Detection types: {Object.values(DETECTION_LABELS).slice(0, 5).join(" · ")} — illustrative demo data, not real company figures.
+      <p className="text-caption text-text-muted">
+        Illustrative demo data — not real company figures.
       </p>
     </div>
   );
 }
 
-/** Dense enterprise table used by row-5 panels. */
+/** Quiet dense-but-breathable table for the lower panels. */
 function MiniTable({ head, rows, empty }) {
   if (!rows.length) {
-    return <p className="py-8 text-center text-small text-text-muted">{empty}</p>;
+    return <p className="py-10 text-center text-small text-text-muted">{empty}</p>;
   }
   return (
     <div className="overflow-x-auto">
@@ -198,7 +184,10 @@ function MiniTable({ head, rows, empty }) {
         <thead>
           <tr className="border-b border-border text-caption text-text-muted">
             {head.map((h, i) => (
-              <th key={h} className={`pb-2 ${i > 0 ? "text-right" : ""} font-medium uppercase tracking-wide`}>
+              <th
+                key={h}
+                className={`pb-3 font-medium ${i > 0 ? "text-right" : ""}`}
+              >
                 {h}
               </th>
             ))}
@@ -206,9 +195,12 @@ function MiniTable({ head, rows, empty }) {
         </thead>
         <tbody>
           {rows.map((cells, i) => (
-            <tr key={i} className="border-b border-border/60 last:border-0 hover:bg-surface-hover/60">
+            <tr
+              key={i}
+              className="border-b border-border/50 transition-colors last:border-0 hover:bg-surface-hover/50"
+            >
               {cells.map((c, j) => (
-                <td key={j} className={`py-2.5 ${j > 0 ? "text-right" : ""} text-text-secondary`}>
+                <td key={j} className={`py-3.5 ${j > 0 ? "text-right" : ""} text-text-secondary`}>
                   {c}
                 </td>
               ))}

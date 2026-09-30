@@ -26,7 +26,7 @@ export default function PriceVarianceChart({ data, height = 280 }) {
           data={data}
           layout="vertical"
           margin={{ top: 4, right: 20, bottom: 0, left: 8 }}
-          barCategoryGap="25%"
+          barCategoryGap="32%"
         >
           <CartesianGrid horizontal={false} stroke={GRID_COLOR} />
           <XAxis
@@ -40,7 +40,7 @@ export default function PriceVarianceChart({ data, height = 280 }) {
             type="category"
             dataKey="supplier"
             width={128}
-            tick={{ ...AXIS_TICK, fill: "#a7afbc" }}
+            tick={{ ...AXIS_TICK, fill: "#a3aab5" }}
             tickLine={false}
             axisLine={false}
           />
@@ -48,7 +48,7 @@ export default function PriceVarianceChart({ data, height = 280 }) {
             cursor={{ fill: "rgba(139,124,246,0.06)" }}
             content={<ChartTooltip valueFormatter={varianceFormatter} />}
           />
-          <Bar dataKey="variancePct" name="Price variance" radius={[0, 4, 4, 0]} maxBarSize={16}>
+          <Bar dataKey="variancePct" name="Price variance" radius={[0, 3, 3, 0]} maxBarSize={14}>
             {data.map((entry, i) => (
               <Cell
                 key={entry.supplier}
