@@ -6,6 +6,8 @@ import Upload from "./pages/Upload";
 import Investigation from "./pages/Investigation";
 import Analytics from "./pages/Analytics";
 import StyleGuide from "./pages/StyleGuide";
+import Landing from "./pages/Landing";
+import AuthPlaceholder from "./pages/AuthPlaceholder";
 import { useFetch } from "./hooks/useFetch";
 import { getDashboard } from "./services/api";
 
@@ -32,8 +34,12 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Design-system foundation (current milestone) */}
-        <Route path="/" element={<Navigate to="/styleguide" replace />} />
+        {/* Public site */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<AuthPlaceholder mode="login" />} />
+        <Route path="/signup" element={<AuthPlaceholder mode="signup" />} />
+
+        {/* Design-system foundation */}
         <Route path="/styleguide" element={<StyleGuide />} />
 
         {/* Existing app pages (kept intact — will be migrated to the new tokens next) */}

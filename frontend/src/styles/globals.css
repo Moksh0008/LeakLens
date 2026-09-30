@@ -132,6 +132,13 @@
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
+
+  /* Smooth anchor scrolling on landing sections (motion-safe only) */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
 }
 
 /* ---------- 4. Utilities ---------- */
