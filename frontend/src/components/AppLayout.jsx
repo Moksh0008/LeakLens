@@ -162,7 +162,6 @@ export default function AppLayout({ children, flaggedCount }) {
               <span className="block text-[15px] font-semibold leading-tight tracking-tight text-text-primary">
                 LeakLens
               </span>
-              <span className="overline mt-0.5 block text-[10px]">Procurement Intelligence</span>
             </span>
           )}
         </Link>

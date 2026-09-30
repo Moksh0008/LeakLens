@@ -35,7 +35,6 @@ export default function AuthLayout({ children }) {
             <span className="text-[15px] font-semibold leading-tight tracking-tight">
               LeakLens
             </span>
-            <span className="overline text-[10px]">Procurement Intelligence</span>
           </span>
         </Link>
 
