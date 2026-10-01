@@ -27,11 +27,13 @@ const ANALYST_SYSTEM_PROMPT = [
 
 function novaConfig() {
     return {
-        apiKey: process.env.NOVA_API_KEY || "",
-        baseUrl: (process.env.NOVA_API_BASE_URL || DEFAULT_BASE_URL).replace(
-            /\/+$/,
-            ""
-        ),
+        // trim() guards against stray whitespace from dashboard pastes.
+        apiKey: (process.env.NOVA_API_KEY || "").trim(),
+        baseUrl: (
+            process.env.NOVA_API_BASE_URL || DEFAULT_BASE_URL
+        )
+            .trim()
+            .replace(/\/+$/, ""),
         timeoutMs:
             Number(process.env.NOVA_API_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS,
         // Optional — Nova falls back to the project default model when omitted.
