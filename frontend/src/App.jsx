@@ -12,6 +12,7 @@ import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import ModulePlaceholder from "./pages/ModulePlaceholder";
+import LeakageAnalysis from "./pages/LeakageAnalysis";
 import { useFetch } from "./hooks/useFetch";
 import { getDashboard } from "./services/api";
 
@@ -55,7 +56,7 @@ export default function App() {
           <Route path="/price-benchmarking" element={<ModulePlaceholder moduleKey="price-benchmarking" />} />
           <Route path="/supplier-analysis" element={<ModulePlaceholder moduleKey="supplier-analysis" />} />
           <Route path="/contracts" element={<ModulePlaceholder moduleKey="contracts" />} />
-          <Route path="/leakage" element={<ModulePlaceholder moduleKey="leakage" />} />
+          <Route path="/leakage" element={<LeakageAnalysis />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/investigation" element={<Investigation />} />
           <Route path="/analytics" element={<Analytics />} />

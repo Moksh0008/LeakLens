@@ -31,7 +31,7 @@ const NAV_MAIN = [
   { to: "/price-benchmarking", label: "Price Benchmarking", icon: ChartIcon, soon: true },
   { to: "/supplier-analysis", label: "Supplier Analysis", icon: DocIcon, soon: true },
   { to: "/contracts", label: "Contracts & Discounts", icon: DocIcon, soon: true },
-  { to: "/leakage", label: "Leakage Analysis", icon: AlertIcon, soon: true },
+  { to: "/leakage", label: "Leakage Analysis", icon: AlertIcon },
   { to: "/upload", label: "Data Import", icon: UploadIcon },
 ];
 
@@ -217,23 +217,7 @@ export default function AppLayout({ children, flaggedCount }) {
         </div>
       </nav>
 
-      {/* Alerts — quiet card, only red is the small count */}
-      <div className="px-4 pb-5 pt-2">
-        <Link
-          to="/investigation"
-          className="block rounded-card border border-border bg-surface p-4 transition-colors hover:border-border-strong"
-        >
-          <div className="flex items-center justify-between">
-            <p className="text-small font-medium text-text-primary">Leakage alerts</p>
-            <span className="tnum text-small font-semibold text-danger">
-              {flaggedCount ?? "—"}
-            </span>
-          </div>
-          <p className="mt-1 text-caption text-text-muted">
-            transactions require investigation
-          </p>
-        </Link>
-      </div>
+
     </>
   );
 
@@ -315,10 +299,10 @@ export default function AppLayout({ children, flaggedCount }) {
             <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
-                onClick={() => navigate("/investigation")}
+                onClick={() => navigate("/leakage")}
                 className="relative rounded-control p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
-                aria-label={`Notifications — ${flaggedCount ?? 0} transactions require investigation`}
-                title="Transactions requiring investigation"
+                aria-label={`Leakage alerts — ${flaggedCount ?? 0} transactions flagged`}
+                title="Leakage alerts"
               >
                 <AlertIcon size={16} />
                 {flaggedCount > 0 && (
