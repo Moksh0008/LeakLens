@@ -1,10 +1,13 @@
 // SpendLeakageChart.jsx — the primary analytical chart:
-// procurement spend (blue area) vs potential leakage (red line) per month.
+// monthly procurement spend (blue bars, left axis) vs potential leakage
+// (red line + soft gradient area, right axis).
 
 import {
   Area,
+  Bar,
   CartesianGrid,
   ComposedChart,
+  Legend,
   Line,
   ResponsiveContainer,
   Tooltip,
@@ -16,7 +19,7 @@ import {
   ChartTooltip,
   GRID_COLOR,
   LEAKAGE_COLOR,
-  SERIES_BLUE,
+  SPEND_COLOR,
 } from "./chartTheme";
 import { formatCompactINR } from "../../utils/format";
 
@@ -26,14 +29,28 @@ export default function SpendLeakageChart({ data, height = 300 }) {
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <defs>
-            <linearGradient id="spendFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={SERIES_BLUE} stopOpacity={0.18} />
-              <stop offset="100%" stopColor={SERIES_BLUE} stopOpacity={0.01} />
+            <linearGradient id="spendBarFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={SPEND_COLOR} stopOpacity={0.85} />
+              <stop offset="100%" stopColor={SPEND_COLOR} stopOpacity={0.35} />
+            </linearGradient>
+            <linearGradient id="leakAreaFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={LEAKAGE_COLOR} stopOpacity={0.26} />
+              <stop offset="100%" stopColor={LEAKAGE_COLOR} stopOpacity={0.02} />
             </linearGradient>
           </defs>
           <CartesianGrid stroke={GRID_COLOR} vertical={false} />
           <XAxis dataKey="month" tick={AXIS_TICK} tickLine={false} axisLine={false} dy={8} />
           <YAxis
+            yAxisId="spend"
+            tick={AXIS_TICK}
+            tickLine={false}
+            axisLine={false}
+            width={64}
+            tickFormatter={(v) => formatCompactINR(v)}
+          />
+          <YAxis
+            yAxisId="leakage"
+            orientation="right"
             tick={AXIS_TICK}
             tickLine={false}
             axisLine={false}
@@ -41,26 +58,40 @@ export default function SpendLeakageChart({ data, height = 300 }) {
             tickFormatter={(v) => formatCompactINR(v)}
           />
           <Tooltip
-            cursor={{ stroke: "rgba(255,255,255,0.14)", strokeDasharray: "3 3" }}
+            cursor={{ fill: "rgba(255, 255, 255, 0.04)" }}
             content={<ChartTooltip valueFormatter={formatCompactINR} />}
           />
-          <Area
-            type="monotone"
+          <Legend
+            iconType="circle"
+            iconSize={8}
+            wrapperStyle={{ fontSize: 12, paddingTop: 6 }}
+          />
+          <Bar
+            yAxisId="spend"
             dataKey="spend"
-            name="Spend"
-            stroke={SERIES_BLUE}
-            strokeWidth={1.8}
-            fill="url(#spendFill)"
-            activeDot={{ r: 3 }}
+            name="Procurement Spend"
+            fill="url(#spendBarFill)"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={34}
+          />
+          <Area
+            yAxisId="leakage"
+            type="monotone"
+            dataKey="leakage"
+            name="Potential Leakage"
+            legendType="none"
+            stroke="none"
+            fill="url(#leakAreaFill)"
           />
           <Line
+            yAxisId="leakage"
             type="monotone"
             dataKey="leakage"
             name="Potential Leakage"
             stroke={LEAKAGE_COLOR}
-            strokeWidth={1.8}
-            dot={false}
-            activeDot={{ r: 3 }}
+            strokeWidth={2.2}
+            dot={{ r: 3, fill: LEAKAGE_COLOR, strokeWidth: 0 }}
+            activeDot={{ r: 5, stroke: "#11151c", strokeWidth: 2 }}
           />
         </ComposedChart>
       </ResponsiveContainer>

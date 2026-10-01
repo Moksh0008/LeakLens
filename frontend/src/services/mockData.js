@@ -208,8 +208,11 @@ export function buildSpendLeakageTrend(transactions = mockTransactions) {
     const d = new Date(t.date);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const cur = months.get(key) || { key, spend: 0, leakage: 0 };
-    cur.spend += t.actualPrice * t.quantity;
-    cur.leakage += t.potentialLeakage;
+    // totalAmount exists on real backend rows; mock rows derive it.
+    // (actualPrice is only present on flagged rows, so it can't be used here.)
+    const amount = t.totalAmount ?? t.unitPrice * t.quantity;
+    cur.spend += Number.isFinite(amount) ? amount : 0;
+    cur.leakage += t.potentialLeakage ?? 0;
     months.set(key, cur);
   }
   return [...months.values()]
