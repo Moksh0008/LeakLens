@@ -29,7 +29,7 @@ export default function Landing() {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          opacity: 0.16,
+          opacity: 0.32,
         }}
       />
       {/* Slight bottom shade so the watermark fades before the footer */}
