@@ -53,8 +53,8 @@ export default function Investigation() {
   return (
     <div className="mx-auto flex max-w-[1400px] flex-col gap-5">
       <div>
-        <h1 className="text-xl font-semibold text-ink-900">Investigation</h1>
-        <p className="mt-0.5 text-sm text-ink-400">
+        <h1 className="text-xl font-semibold text-text-primary">Investigation</h1>
+        <p className="mt-0.5 text-sm text-text-secondary">
           Review flagged transactions — reason, evidence and estimated impact
         </p>
       </div>
@@ -63,12 +63,12 @@ export default function Investigation() {
         {/* ---------- Left: flagged list ---------- */}
         <div className="flex flex-col gap-3">
           <label className="flex items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-small">
-            <SearchIcon size={15} className="text-ink-400" />
+            <SearchIcon size={15} className="text-text-muted" />
             <input
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder="Filter flagged transactions…"
-              className="w-full bg-transparent text-ink-700 outline-none placeholder:text-ink-400"
+              className="w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted"
             />
           </label>
 
@@ -81,15 +81,17 @@ export default function Investigation() {
                 key={t.transactionId}
                 type="button"
                 onClick={() => setSelectedId(t.transactionId)}
-                className={`flex items-center justify-between gap-2 px-4 py-3 text-left transition ${
-                  selectedId === t.transactionId ? "bg-brand-50" : "hover:bg-ink-50"
+                className={`flex items-center justify-between gap-2 border-l-2 px-4 py-3 text-left transition ${
+                  selectedId === t.transactionId
+                    ? "border-accent bg-accent-soft"
+                    : "border-transparent hover:bg-surface-hover"
                 }`}
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-ink-800">
+                  <p className="truncate text-sm font-medium text-text-primary">
                     {t.transactionId} · {t.product}
                   </p>
-                  <p className="truncate text-xs text-ink-400">{t.supplier}</p>
+                  <p className="truncate text-xs text-text-muted">{t.supplier}</p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <span className="tnum text-sm font-semibold text-red-600">
@@ -114,9 +116,11 @@ export default function Investigation() {
 
           {!detail.loading && !detail.error && !detail.data && (
             <div className="flex h-full min-h-[420px] flex-col items-center justify-center gap-2 text-center">
-              <SearchIcon size={26} className="text-ink-300" />
-              <p className="font-medium text-ink-600">Select a transaction to investigate</p>
-              <p className="max-w-xs text-sm text-ink-400">
+              <span className="flex h-11 w-11 items-center justify-center rounded-control border border-border bg-background-2 text-text-muted">
+                <SearchIcon size={20} />
+              </span>
+              <p className="font-medium text-text-primary">Select a transaction to investigate</p>
+              <p className="max-w-xs text-sm text-text-secondary">
                 Pick any flagged transaction to see the detection reason, price evidence and
                 estimated financial impact.
               </p>
@@ -126,16 +130,18 @@ export default function Investigation() {
           {!detail.loading && !detail.error && detail.data && (
             <div className="flex flex-col">
               {/* Detail header */}
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink-100 px-5 py-4">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-5 py-4">
                 <div>
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
                     Transaction
                   </p>
-                  <p className="tnum text-lg font-semibold text-ink-900">
+                  <p className="tnum text-lg font-semibold text-text-primary">
                     {detail.data.transactionId}
                   </p>
-                  <p className="mt-0.5 text-sm text-ink-500">
-                    {detail.data.product} · {detail.data.supplier} · {formatDate(detail.data.date)}
+                  <p className="mt-0.5 text-sm text-text-secondary">
+                    {detail.data.product} · {detail.data.supplier} ·{" "}
+                    {detail.data.quantity} units
+                    {detail.data.date ? ` · ${formatDate(detail.data.date)}` : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -163,23 +169,23 @@ export default function Investigation() {
               </div>
 
               {/* Reason */}
-              <div className="mx-5 mb-4 flex gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
-                <AlertIcon size={18} className="mt-0.5 shrink-0 text-amber-600" />
+              <div className="mx-5 mb-4 flex gap-3 rounded-control border border-amber-500/25 bg-amber-500/[0.08] p-4">
+                <AlertIcon size={18} className="mt-0.5 shrink-0 text-amber-400" />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-300/90">
                     Why this was flagged
                   </p>
-                  <p className="mt-1 text-sm text-amber-900">{detail.data.reason}</p>
+                  <p className="mt-1 text-sm text-amber-100/90">{detail.data.reason}</p>
                 </div>
               </div>
 
               {/* Calculation breakdown */}
-              <div className="border-t border-ink-100 px-5 py-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">
+              <div className="border-t border-border px-5 py-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
                   Impact calculation
                 </p>
-                <div className="tnum mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-600">
-                  <span className="font-medium text-red-600">{formatINR(detail.data.actualPrice)}</span>
+                <div className="tnum mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary">
+                  <span className="font-medium text-red-500">{formatINR(detail.data.actualPrice)}</span>
                   <span>actual −</span>
                   <span>{formatINR(detail.data.benchmarkPrice)} benchmark</span>
                   <span>=</span>
@@ -189,11 +195,11 @@ export default function Investigation() {
                   <span>×</span>
                   <span>{detail.data.quantity} units</span>
                   <span>=</span>
-                  <span className="font-semibold text-red-600">
+                  <span className="font-semibold text-red-500">
                     {formatINR(detail.data.potentialLeakage)} potential leakage
                   </span>
                 </div>
-                <p className="mt-3 text-xs text-ink-400">
+                <p className="mt-3 text-xs text-text-muted">
                   Estimated from historical price benchmarks for this product category.
                 </p>
               </div>
@@ -208,14 +214,18 @@ export default function Investigation() {
 function EvidenceStat({ label, value, tone, emphasis }) {
   return (
     <div
-      className={`rounded-lg border p-3.5 ${
-        tone === "danger" ? "border-red-100 bg-red-50/60" : "border-ink-100 bg-ink-50/50"
+      className={`rounded-control border p-4 ${
+        tone === "danger"
+          ? "border-red-500/25 bg-red-500/[0.06]"
+          : "border-border bg-background-2"
       }`}
     >
-      <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">{label}</p>
+      <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
+        {label}
+      </p>
       <p
-        className={`tnum mt-1 ${emphasis ? "text-lg font-semibold" : "text-base font-medium"} ${
-          tone === "danger" ? "text-red-600" : "text-ink-800"
+        className={`tnum mt-1.5 ${emphasis ? "text-xl font-semibold" : "text-lg font-medium"} ${
+          tone === "danger" ? "text-red-500" : "text-text-primary"
         }`}
       >
         {value}
