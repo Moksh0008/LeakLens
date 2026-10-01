@@ -5,11 +5,66 @@ import { useFetch } from "../hooks/useFetch";
 import { formatCompactINR, formatDate, formatINR } from "../utils/format";
 import { DetectionBadge, SeverityBadge } from "../components/ui/Badges";
 import { EmptyPanel, ErrorPanel, LoadingPanel } from "../components/ui/States";
-import { SearchIcon } from "../components/ui/Icons";
+import { ChevronDownIcon, SearchIcon } from "../components/ui/Icons";
 import EmptyWorkspace from "../components/EmptyWorkspace";
 import { IS_MOCK, hasMockData } from "../services/api";
 
 const SEVERITIES = ["ALL", "HIGH", "MEDIUM", "LOW"];
+
+const DETECTION_OPTIONS = [
+  { value: "ALL", label: "All detections" },
+  { value: "PRICE_ANOMALY", label: "Price Anomaly" },
+  { value: "POSSIBLE_DUPLICATE", label: "Possible Duplicate" },
+  { value: "CLEAN", label: "Clean only" },
+];
+
+// Ascending severity rank = worst findings first.
+const SEVERITY_RANK = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+
+/** Styled dropdown that matches the segmented-control look. */
+function FilterSelect({ value, onChange, options, ariaLabel }) {
+  return (
+    <div className="relative">
+      <select
+        aria-label={ariaLabel}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="appearance-none rounded-control border border-border bg-surface py-2 pl-3 pr-8 text-small text-text-primary outline-none transition focus:border-accent"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDownIcon
+        size={14}
+        className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted"
+      />
+    </div>
+  );
+}
+
+/** Highlighted column header — click to sort by that column. */
+function SortableTh({ label, colKey, defaultDir = "asc", align = "left", sort, onSort }) {
+  const active = sort.key === colKey;
+  return (
+    <th className={`px-4 py-3 ${align === "right" ? "text-right" : ""}`}>
+      <button
+        type="button"
+        onClick={() => onSort(colKey, defaultDir)}
+        className={`inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide transition ${
+          active ? "text-accent" : "text-accent/70 hover:text-accent"
+        }`}
+      >
+        {label}
+        <span aria-hidden className="text-[8px] leading-none opacity-60">
+          {active ? (sort.dir === "asc" ? "▲" : "▼") : "⇅"}
+        </span>
+      </button>
+    </th>
+  );
+}
 
 export default function Transactions() {
   const navigate = useNavigate();
@@ -18,10 +73,32 @@ export default function Transactions() {
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [severity, setSeverity] = useState("ALL");
+  const [category, setCategory] = useState("ALL");
+  const [supplier, setSupplier] = useState("ALL");
+  const [detection, setDetection] = useState("ALL");
+  const [sort, setSort] = useState({ key: "date", dir: "desc" });
+
+  const categories = useMemo(
+    () => [...new Set((data || []).map((t) => t.category))].sort(),
+    [data],
+  );
+  const suppliers = useMemo(
+    () => [...new Set((data || []).map((t) => t.supplier))].sort(),
+    [data],
+  );
 
   const filtered = useMemo(() => {
     let rows = data || [];
     if (severity !== "ALL") rows = rows.filter((t) => t.severity === severity);
+    if (category !== "ALL") rows = rows.filter((t) => t.category === category);
+    if (supplier !== "ALL") rows = rows.filter((t) => t.supplier === supplier);
+    if (detection !== "ALL") {
+      rows = rows.filter((t) =>
+        detection === "CLEAN"
+          ? t.detectionType === "NONE"
+          : t.detectionType === detection,
+      );
+    }
     const q = query.trim().toLowerCase();
     if (q) {
       rows = rows.filter(
@@ -31,8 +108,51 @@ export default function Transactions() {
           t.product.toLowerCase().includes(q),
       );
     }
-    return rows;
-  }, [data, query, severity]);
+
+    const val = (t) => {
+      switch (sort.key) {
+        case "unitPrice":
+          return t.actualPrice ?? t.unitPrice ?? 0;
+        case "leakage":
+          return t.potentialLeakage ?? 0;
+        case "severity":
+          return SEVERITY_RANK[t.severity] ?? 9;
+        default:
+          return t[sort.key];
+      }
+    };
+    return [...rows].sort((a, b) => {
+      const va = val(a);
+      const vb = val(b);
+      const cmp =
+        typeof va === "number" && typeof vb === "number"
+          ? va - vb
+          : String(va).localeCompare(String(vb));
+      return sort.dir === "asc" ? cmp : -cmp;
+    });
+  }, [data, query, severity, category, supplier, detection, sort]);
+
+  const activeFilters =
+    query.trim() !== "" ||
+    severity !== "ALL" ||
+    category !== "ALL" ||
+    supplier !== "ALL" ||
+    detection !== "ALL";
+
+  const resetFilters = () => {
+    setQuery("");
+    setSeverity("ALL");
+    setCategory("ALL");
+    setSupplier("ALL");
+    setDetection("ALL");
+  };
+
+  const toggleSort = (key, defaultDir = "asc") =>
+    setSort((s) =>
+      s.key === key
+        ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: defaultDir },
+    );
 
   if (loading) return <LoadingPanel />;
   if (error) return <ErrorPanel message={error.message} onRetry={refetch} />;
@@ -75,26 +195,59 @@ export default function Transactions() {
             </button>
           ))}
         </div>
+        <FilterSelect
+          ariaLabel="Filter by category"
+          value={category}
+          onChange={setCategory}
+          options={[
+            { value: "ALL", label: "All categories" },
+            ...categories.map((c) => ({ value: c, label: c })),
+          ]}
+        />
+        <FilterSelect
+          ariaLabel="Filter by supplier"
+          value={supplier}
+          onChange={setSupplier}
+          options={[
+            { value: "ALL", label: "All suppliers" },
+            ...suppliers.map((s) => ({ value: s, label: s })),
+          ]}
+        />
+        <FilterSelect
+          ariaLabel="Filter by detection type"
+          value={detection}
+          onChange={setDetection}
+          options={DETECTION_OPTIONS}
+        />
+        {activeFilters && (
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="rounded-control border border-border bg-surface px-3 py-2 text-xs text-text-secondary transition hover:text-text-primary"
+          >
+            Clear filters
+          </button>
+        )}
         <span className="tnum ml-auto text-xs text-ink-400">
           {filtered.length.toLocaleString("en-IN")} rows
         </span>
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyPanel message="No transactions match your filters" hint="Try clearing the search or severity filter" />
+        <EmptyPanel message="No transactions match your filters" hint="Try a different search, or press Clear filters" />
       ) : (
         <div className="overflow-x-auto rounded-card border border-border bg-surface">
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead>
-              <tr className="border-b border-ink-100 text-[11px] uppercase tracking-wide text-ink-400">
-                <th className="px-4 py-3 font-semibold">ID</th>
-                <th className="px-4 py-3 font-semibold">Product</th>
-                <th className="px-4 py-3 font-semibold">Supplier</th>
-                <th className="px-4 py-3 font-semibold">Date</th>
-                <th className="px-4 py-3 text-right font-semibold">Unit Price</th>
-                <th className="px-4 py-3 text-right font-semibold">Leakage</th>
-                <th className="px-4 py-3 font-semibold">Detection</th>
-                <th className="px-4 py-3 font-semibold">Severity</th>
+              <tr className="border-b border-ink-100 bg-accent/[0.05] text-[11px] uppercase tracking-wide">
+                <SortableTh label="ID" colKey="transactionId" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Product" colKey="product" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Supplier" colKey="supplier" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Date" colKey="date" defaultDir="desc" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Unit Price" colKey="unitPrice" defaultDir="desc" align="right" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Leakage" colKey="leakage" defaultDir="desc" align="right" sort={sort} onSort={toggleSort} />
+                <th className="px-4 py-3 font-semibold text-accent/70">Detection</th>
+                <SortableTh label="Severity" colKey="severity" defaultDir="asc" sort={sort} onSort={toggleSort} />
               </tr>
             </thead>
             <tbody>

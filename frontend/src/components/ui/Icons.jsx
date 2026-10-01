@@ -188,6 +188,14 @@ export function CloseIcon(props) {
   );
 }
 
+export function ChevronDownIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </Svg>
+  );
+}
+
 export function LensLogo({ size = 22, ...props }) {
   return (
     <Svg size={size} strokeWidth={2} {...props}>
