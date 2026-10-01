@@ -58,6 +58,9 @@ export async function signIn({ email, password }) {
   if (body.session) {
     localStorage.setItem(SESSION_KEY, JSON.stringify(body.session));
   }
+  if (body.user) {
+    localStorage.setItem("leaklens.user", JSON.stringify(body.user));
+  }
   return body;
 }
 
@@ -81,7 +84,8 @@ export function getStoredSession() {
   }
 }
 
-/** Clear the stored session (logout). */
+/** Clear the stored session and profile (logout). */
 export function clearSession() {
   localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem("leaklens.user");
 }
