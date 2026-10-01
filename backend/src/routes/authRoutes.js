@@ -126,4 +126,86 @@ router.post("/login", async (req, res) => {
     }
 });
 
+// POST /api/auth/change-email — requires the caller's access token
+// (Authorization: Bearer) plus their current password.
+router.post("/change-email", async (req, res) => {
+    try {
+        const token = String(req.headers.authorization || "")
+            .replace(/^Bearer\s+/i, "")
+            .trim();
+
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: "Missing access token.",
+            });
+        }
+
+        const { newEmail, currentPassword } = req.body || {};
+        if (!newEmail || !currentPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "New email and current password are required.",
+            });
+        }
+
+        // 1. Identify the caller from their access token.
+        const { data: tokenData, error: tokenError } =
+            await supabase.auth.getUser(token);
+        if (tokenError || !tokenData?.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Session expired. Please sign in again.",
+            });
+        }
+
+        // 2. Re-verify the current password before touching the account.
+        const { error: passwordError } = await supabase.auth.signInWithPassword({
+            email: tokenData.user.email,
+            password: String(currentPassword),
+        });
+        if (passwordError) {
+            return res.status(401).json({
+                success: false,
+                message: "Current password is incorrect.",
+            });
+        }
+
+        // 3. Apply the change (confirmed immediately for the demo flow).
+        const { data: updated, error: updateError } =
+            await supabase.auth.admin.updateUserById(tokenData.user.id, {
+                email: String(newEmail).trim().toLowerCase(),
+                email_confirm: true,
+            });
+
+        if (updateError) {
+            const conflict = /already|registered|exists/i.test(
+                updateError.message || ""
+            );
+            return res.status(conflict ? 409 : 400).json({
+                success: false,
+                message: conflict
+                    ? "That email is already in use."
+                    : updateError.message,
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Email updated. Use the new email next time you sign in.",
+            user: {
+                id: updated.user.id,
+                email: updated.user.email,
+                fullName: updated.user.user_metadata?.full_name ?? null,
+            },
+        });
+    } catch (err) {
+        console.error("Change-email error:", err.message);
+        res.status(500).json({
+            success: false,
+            message: "Email change failed. Please try again.",
+        });
+    }
+});
+
 module.exports = router;

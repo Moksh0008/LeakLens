@@ -10,7 +10,10 @@
 // unreachable or the workspace is still empty (so the page never breaks).
 
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import SectionCard from "../components/dashboard/SectionCard";
+import Button from "../components/ui/Button";
+import { UploadIcon } from "../components/ui/Icons";
 import QuickSnapshot from "../components/home/QuickSnapshot";
 import PrimaryActions from "../components/home/PrimaryActions";
 import IdentifyFeatures from "../components/home/IdentifyFeatures";
@@ -30,6 +33,9 @@ import {
   SNAPSHOT,
   greetingForHour,
 } from "../components/home/homeData";
+
+// Demo constants are final in mock mode; real mode derives from the API.
+const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
 
 /** First name of the signed-in user (real session) or the demo persona. */
 function displayName() {
@@ -107,8 +113,11 @@ export default function Home() {
   const [recentActivity, setRecentActivity] = useState(RECENT_ACTIVITY);
   const [requiresAttention, setRequiresAttention] = useState(REQUIRES_ATTENTION);
   const [usingRealData, setUsingRealData] = useState(false);
+  const [workspaceEmpty, setWorkspaceEmpty] = useState(false);
 
   useEffect(() => {
+    if (USE_MOCK) return undefined; // demo constants are the final state
+
     let cancelled = false;
 
     async function load() {
@@ -119,16 +128,20 @@ export default function Home() {
         ]);
         if (cancelled) return;
 
-        // An empty workspace (fresh database) renders the demo values.
         if (transactions.length > 0) {
           const derived = deriveSections(dashboard, transactions);
           setSnapshot(derived.snapshot);
           setRecentActivity(derived.recentActivity);
           setRequiresAttention(derived.requiresAttention);
           setUsingRealData(true);
+        } else {
+          // Fresh account — nothing imported yet.
+          setWorkspaceEmpty(true);
         }
       } catch {
-        /* backend down / offline — keep the demo constants */
+        // Backend unreachable or database not seeded yet — a new account
+        // has nothing to show regardless.
+        setWorkspaceEmpty(true);
       }
     }
 
@@ -137,6 +150,62 @@ export default function Home() {
       cancelled = true;
     };
   }, []);
+
+  // Fresh account — no content, just the upload prompt.
+  if (workspaceEmpty) {
+    return (
+      <div className="flex flex-col gap-8">
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="flex flex-wrap items-end justify-between gap-4"
+        >
+          <div>
+            <h2 className="text-heading font-semibold text-text-primary">
+              {greetingForHour()}, {displayName()}
+            </h2>
+            <p className="mt-1.5 text-body text-text-secondary">
+              Here's a quick view of your procurement intelligence workspace.
+            </p>
+          </div>
+          <span className="tnum rounded-control border border-border bg-surface px-3.5 py-2 text-caption text-text-secondary">
+            Workspace · 0 transactions
+          </span>
+        </motion.div>
+
+        <motion.section
+          initial={reduce ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+          className="rounded-card border border-border bg-surface p-8 text-center shadow-[var(--shadow-card)]"
+        >
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-card border border-border bg-surface-elevated text-accent">
+            <UploadIcon size={20} />
+          </span>
+          <h2 className="mt-5 text-section font-semibold text-text-primary">
+            Your workspace is empty
+          </h2>
+          <p className="mx-auto mt-2 max-w-md text-small text-text-secondary">
+            Upload your CSV file to get analysis — LeakLens will surface price
+            anomalies, missed discounts and other leakage as soon as your
+            transactions are in.
+          </p>
+          <div className="mt-6 flex justify-center">
+            <Link to="/import">
+              <Button variant="primary" className="h-11 px-6">
+                <UploadIcon size={15} />
+                Upload CSV
+              </Button>
+            </Link>
+          </div>
+          <p className="mt-5 text-caption text-text-muted">
+            New account? Head to Data Import and drop your procurement CSV.
+          </p>
+        </motion.section>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">

@@ -51,7 +51,9 @@ async function authCall(path, payload) {
 export async function signIn({ email, password }) {
   if (USE_MOCK) {
     await delay(NETWORK_DELAY);
-    return { user: { email } };
+    const demoUser = { email, fullName: "Alex" };
+    localStorage.setItem("leaklens.user", JSON.stringify(demoUser));
+    return { user: demoUser };
   }
 
   const body = await authCall("/login", { email, password });
@@ -72,6 +74,55 @@ export async function signUp(payload) {
   }
 
   const body = await authCall("/signup", payload);
+  return body;
+}
+
+/**
+ * Change the signed-in user's email. Real mode requires the current
+ * password and the stored access token; mock mode updates the local
+ * demo profile so the flow works everywhere.
+ */
+export async function changeEmail(newEmail, currentPassword) {
+  if (USE_MOCK) {
+    await delay(NETWORK_DELAY);
+    try {
+      const user = JSON.parse(localStorage.getItem("leaklens.user") || "null") || {};
+      user.email = newEmail;
+      localStorage.setItem("leaklens.user", JSON.stringify(user));
+    } catch {
+      /* ignore malformed profile */
+    }
+    return { success: true, message: "Email updated (demo mode)." };
+  }
+
+  const session = getStoredSession();
+  if (!session?.accessToken) {
+    throw new Error("You are not signed in.");
+  }
+
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/api/auth/change-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: JSON.stringify({ newEmail, currentPassword }),
+    });
+  } catch {
+    throw new Error("Cannot reach the server. Is the backend running?");
+  }
+
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(body.message || `Email change failed (${res.status}).`);
+  }
+
+  // Refresh the locally stored profile.
+  if (body.user) {
+    localStorage.setItem("leaklens.user", JSON.stringify(body.user));
+  }
   return body;
 }
 

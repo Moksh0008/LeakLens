@@ -41,10 +41,10 @@ export default function Hero() {
           </motion.p>
 
           <motion.div {...fade(0.24)} className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Link to="/signup" className="contents">
+            <Link to="/login" className="contents">
               <Button variant="primary" size="md" className="h-11 w-full px-6 sm:w-auto">Start Analyzing</Button>
             </Link>
-            <Link to="/dashboard" className="contents">
+            <Link to="/login" className="contents">
               <Button variant="secondary" size="md" className="h-11 px-6">Explore Dashboard</Button>
             </Link>
           </motion.div>

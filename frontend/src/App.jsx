@@ -10,6 +10,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile";
 import ModulePlaceholder from "./pages/ModulePlaceholder";
 import { useFetch } from "./hooks/useFetch";
 import { getDashboard } from "./services/api";
@@ -48,6 +49,7 @@ export default function App() {
         {/* Authenticated app shell */}
         <Route element={<LayoutRoute />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/price-benchmarking" element={<ModulePlaceholder moduleKey="price-benchmarking" />} />
