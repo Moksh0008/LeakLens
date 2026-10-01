@@ -13,9 +13,17 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
+// Allowed browser origins — comma-separated CORS_ORIGIN env var.
+// Defaults to the local Vite dev server; Render/Vercel set CORS_ORIGIN
+// in their dashboards (see render.yaml).
+const corsOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
 app.use(
     cors({
-        origin: "http://localhost:5173"
+        origin: corsOrigins
     })
 );
 

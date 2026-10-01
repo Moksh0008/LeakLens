@@ -1,0 +1,30 @@
+# Render Blueprint — LeakLens backend (Express API).
+# Deploy: Render Dashboard → New + → Blueprint → pick Moksh0008/LeakLens.
+# Render prompts for the `sync: false` secrets at deploy time — paste them
+# there; they are intentionally NOT stored in this file.
+services:
+  - type: web
+    name: leaklens-backend
+    runtime: node
+    rootDir: backend
+    branch: main
+    plan: free
+    autoDeploy: true
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      # Local JS detection engine (price anomalies + duplicates) — the
+      # FastAPI engine has no HTTP server yet, so keep true.
+      - key: MOCK_DETECTION
+        value: "true"
+      - key: NOVA_API_KEY
+        sync: false
+      - key: NOVA_API_BASE_URL
+        sync: false
+      - key: CORS_ORIGIN
+        value: "https://leaklens-mmra.vercel.app,http://localhost:5173"
