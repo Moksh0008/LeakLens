@@ -2,7 +2,11 @@ const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+// The test only exercises CSV validation (pure functions), so stub the
+// Supabase env before uploadService pulls in the real client. The service
+// module is never called over the network in this suite.
+process.env.SUPABASE_URL = process.env.SUPABASE_URL || 'http://localhost:54321';
+process.env.SUPABASE_KEY = process.env.SUPABASE_KEY || 'test-key';
 
 const { validateAndTransformRows } = require('../src/services/uploadService');
 

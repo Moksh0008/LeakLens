@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { UploadIcon, DocIcon, CloseIcon } from "../components/ui/Icons";
 import Button from "../components/ui/Button";
+import { uploadProcurementFile } from "../services/api";
 
 /**
  * Upload page — focused, centered CSV import.
  * The dropzone is deliberately compact (max-w-xl, centered) — a calm,
  * single-task screen rather than a stretched full-width strip.
- * Upload does not POST anywhere yet; the "Run detection" action reports
- * that honestly instead of pretending.
+ *
+ * "Run detection" calls uploadProcurementFile() (services/api.js):
+ * mock mode returns an illustrative summary; real mode POSTs the CSV to
+ * POST /api/upload where it is parsed, validated and run through the
+ * detection engine.
  */
 
 const CSV_COLUMNS = [
@@ -18,13 +22,14 @@ const CSV_COLUMNS = [
   "product",
   "quantity",
   "unitPrice",
-  "benchmarkPrice",
+  "totalAmount",
 ];
 
 export default function Upload() {
   const [file, setFile] = useState(null);
   const [dragging, setDragging] = useState(false);
   const [notice, setNotice] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   function handleDrop(e) {
     e.preventDefault();
@@ -39,9 +44,20 @@ export default function Upload() {
     setFile(e.target.files?.[0] || null);
   }
 
-  function runDetection() {
-    // Honest demo-mode response until Member 2's endpoint lands.
-    setNotice("Analysis runs on the detection engine once the backend is connected.");
+  async function runDetection() {
+    if (!file || uploading) return;
+    setUploading(true);
+    setNotice(null);
+    try {
+      const result = await uploadProcurementFile(file);
+      setNotice(
+        `${result.message || "Upload complete."} — ${result.transactionsInserted} transactions processed, ${result.flaggedTransactions} flagged.`,
+      );
+    } catch (err) {
+      setNotice(err.message || "Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   }
 
   function clearFile() {
@@ -123,12 +139,13 @@ export default function Upload() {
               <Button
                 variant="primary"
                 size="sm"
+                disabled={uploading}
                 onClick={(e) => {
                   e.preventDefault();
                   runDetection();
                 }}
               >
-                Run detection
+                {uploading ? "Processing…" : "Run detection"}
               </Button>
               <Button
                 variant="secondary"

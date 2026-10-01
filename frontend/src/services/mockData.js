@@ -198,11 +198,13 @@ export function buildMockDashboard() {
 }
 
 // ---------- Monthly spend vs leakage series (derived) ----------
+// Accepts an optional transactions list so REAL backend data can be run
+// through the same derivation (integration: api.js real mode).
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export function buildSpendLeakageTrend() {
+export function buildSpendLeakageTrend(transactions = mockTransactions) {
   const months = new Map();
-  for (const t of mockTransactions) {
+  for (const t of transactions) {
     const d = new Date(t.date);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const cur = months.get(key) || { key, spend: 0, leakage: 0 };
@@ -224,9 +226,9 @@ export function buildSpendLeakageTrend() {
 
 // ---------- Supplier consolidation opportunities ----------
 // Products bought from multiple suppliers at differing prices.
-export function buildConsolidationOpportunities() {
+export function buildConsolidationOpportunities(transactions = mockTransactions) {
   const byProduct = new Map();
-  for (const t of mockTransactions) {
+  for (const t of transactions) {
     const cur = byProduct.get(t.product) || { product: t.product, category: t.category, suppliers: new Map(), spend: 0 };
     cur.suppliers.set(t.supplier, (cur.suppliers.get(t.supplier) || 0) + 1);
     cur.spend += t.actualPrice * t.quantity;
@@ -247,8 +249,10 @@ export function buildConsolidationOpportunities() {
 }
 
 // ---------- Contract / discount exceptions (illustrative) ----------
-export function buildContractExceptions() {
-  return mockLeakage
+// Accepts an optional leakage list so REAL backend findings can be used
+// through the same derivation (integration: api.js real mode).
+export function buildContractExceptions(leakage = mockLeakage) {
+  return leakage
     .filter((t) => t.detectionType === "PRICE_ANOMALY" || t.detectionType === "SUPPLIER_PRICE_VARIANCE")
     .slice(0, 5)
     .map((t) => ({
