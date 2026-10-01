@@ -4,8 +4,7 @@ const multer = require("multer");
 
 const {
     analyzeDocument,
-    isNovaConfigured,
-    maskedKey
+    statusInfo
 } = require("../services/documentAnalysisService");
 
 const router = express.Router();
@@ -32,8 +31,7 @@ const TEXT_EXTENSIONS = new Set([
 router.get("/status", (req, res) => {
     res.json({
         success: true,
-        novaConfigured: isNovaConfigured(),
-        keyMask: maskedKey()
+        ...statusInfo()
     });
 });
 

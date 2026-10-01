@@ -51,6 +51,15 @@ function maskedKey() {
     return `${key.slice(0, 8)}...${key.slice(-4)}`;
 }
 
+// Non-secret diagnostics for GET /api/documents/status.
+function statusInfo() {
+    return {
+        novaConfigured: isNovaConfigured(),
+        keyMask: maskedKey(),
+        baseUrl: novaConfig().baseUrl
+    };
+}
+
 class DocumentAnalysisError extends Error {
     constructor(message, statusCode = 500, code = "document_analysis_error") {
         super(message);
@@ -108,8 +117,16 @@ const analyzeDocument = async ({ filename, mimeType, text, question }) => {
     };
     if (model) payload.model = model;
 
+    // Portal-issued base URLs may already end in /v1 — never double it.
+    const completionsPath = baseUrl.endsWith("/v1")
+        ? "/chat/completions"
+        : COMPLETIONS_PATH;
+
     try {
-        const response = await axios.post(`${baseUrl}${COMPLETIONS_PATH}`, payload, {
+        const response = await axios.post(
+            `${baseUrl}${completionsPath}`,
+            payload,
+            {
             timeout: timeoutMs,
             headers: {
                 Authorization: `Bearer ${apiKey}`,
@@ -165,5 +182,6 @@ module.exports = {
     analyzeDocument,
     isNovaConfigured,
     maskedKey,
+    statusInfo,
     DocumentAnalysisError
 };
