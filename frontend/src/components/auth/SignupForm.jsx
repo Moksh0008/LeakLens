@@ -28,6 +28,7 @@ export default function SignupForm() {
   const [values, setValues] = useState(initial);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
 
   function set(field, value) {
     setValues((v) => ({ ...v, [field]: value }));
@@ -65,6 +66,7 @@ export default function SignupForm() {
     if (Object.values(next).some(Boolean)) return;
 
     setSubmitting(true);
+    setFormError("");
     try {
       await signUp({
         name: values.name,
@@ -74,6 +76,8 @@ export default function SignupForm() {
         password: values.password,
       });
       navigate("/login");
+    } catch (err) {
+      setFormError(err.message || "Could not create the account. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -139,6 +143,13 @@ export default function SignupForm() {
           onChange={(e) => set("confirm", e.target.value)}
         />
       </div>
+
+      {/* Server-side error (email already registered, backend down, …) */}
+      {formError && (
+        <p role="alert" className="rounded-control border border-danger/30 bg-danger/10 px-4 py-3 text-small text-danger">
+          {formError}
+        </p>
+      )}
 
       <Button type="submit" variant="primary" disabled={submitting} className="h-11 w-full">
         {submitting ? (

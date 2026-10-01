@@ -19,6 +19,7 @@ export default function LoginForm() {
   const [values, setValues] = useState({ email: "", password: "", remember: false });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
   const [showReset, setShowReset] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
@@ -44,11 +45,14 @@ export default function LoginForm() {
     if (Object.keys(next).length) return;
 
     setSubmitting(true);
+    setFormError("");
     try {
       await signIn({ email: values.email, password: values.password });
       // TODO(session): replace with the real post-login destination
       // (e.g. from Member 3's API response) once auth lands.
       navigate("/home");
+    } catch (err) {
+      setFormError(err.message || "Could not sign in. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -136,6 +140,13 @@ export default function LoginForm() {
             </p>
           )}
         </motion.div>
+      )}
+
+      {/* Server-side error (wrong password, backend down, …) */}
+      {formError && (
+        <p role="alert" className="rounded-control border border-danger/30 bg-danger/10 px-4 py-3 text-small text-danger">
+          {formError}
+        </p>
       )}
 
       <Button type="submit" variant="primary" disabled={submitting} className="h-11 w-full">

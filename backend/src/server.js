@@ -6,6 +6,7 @@ const transactionRoutes = require("./routes/transactionRoutes");
 const leakageRoutes = require("./routes/leakageRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/leakage", leakageRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/auth", authRoutes);
 
 app.listen(PORT, () => {
     console.log(`LeakLens backend running on http://localhost:${PORT}`);
