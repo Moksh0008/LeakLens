@@ -6,6 +6,7 @@
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { LensLogo } from "../ui/Icons";
+import bgImage from "../../assets/LeakLens-BI.png";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -24,9 +25,22 @@ export default function AuthLayout({ children }) {
   });
 
   return (
-    <div className="grid min-h-screen bg-background text-text-primary lg:grid-cols-[1.05fr_1fr]">
+    <div className="relative grid min-h-screen bg-background text-text-primary lg:grid-cols-[1.05fr_1fr]">
+      {/* Watermark background layer — same treatment as the landing page */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          backgroundImage: `url(${bgImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          opacity: 0.16,
+        }}
+      />
+
       {/* ---------- Left: brand + value proposition ---------- */}
-      <div className="relative hidden flex-col justify-between px-10 py-12 lg:flex xl:px-16">
+      <div className="relative z-10 hidden flex-col justify-between px-10 py-12 lg:flex xl:px-16">
         <Link to="/" className="flex items-center gap-3" aria-label="LeakLens home">
           <span className="flex h-9 w-9 items-center justify-center rounded-control border border-border bg-surface-elevated text-accent">
             <LensLogo size={18} />
@@ -71,7 +85,7 @@ export default function AuthLayout({ children }) {
       </div>
 
       {/* ---------- Right: form panel ---------- */}
-      <div className="flex flex-col">
+      <div className="relative z-10 flex flex-col">
         {/* Mobile brand header */}
         <div className="border-b border-border px-6 py-5 lg:hidden">
           <Link to="/" className="flex items-center gap-2.5">
