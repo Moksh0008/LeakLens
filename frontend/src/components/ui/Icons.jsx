@@ -196,6 +196,14 @@ export function ChevronDownIcon(props) {
   );
 }
 
+export function FilterIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M3 5h18l-7 8.5V19l-4 2v-7.5L3 5Z" />
+    </Svg>
+  );
+}
+
 export function LensLogo({ size = 22, ...props }) {
   return (
     <Svg size={size} strokeWidth={2} {...props}>

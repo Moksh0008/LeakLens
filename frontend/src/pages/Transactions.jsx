@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getTransactions } from "../services/api";
 import { useFetch } from "../hooks/useFetch";
 import { formatCompactINR, formatDate, formatINR } from "../utils/format";
 import { DetectionBadge, SeverityBadge } from "../components/ui/Badges";
 import { EmptyPanel, ErrorPanel, LoadingPanel } from "../components/ui/States";
-import { ChevronDownIcon, SearchIcon } from "../components/ui/Icons";
+import { FilterIcon, SearchIcon } from "../components/ui/Icons";
 import EmptyWorkspace from "../components/EmptyWorkspace";
 import { IS_MOCK, hasMockData } from "../services/api";
 
@@ -21,27 +21,31 @@ const DETECTION_OPTIONS = [
 // Ascending severity rank = worst findings first.
 const SEVERITY_RANK = { HIGH: 0, MEDIUM: 1, LOW: 2 };
 
-/** Styled dropdown that matches the segmented-control look. */
-function FilterSelect({ value, onChange, options, ariaLabel }) {
+/** Grouped filter options inside the Filters panel. */
+function FilterSection({ label, children }) {
   return (
-    <div className="relative">
-      <select
-        aria-label={ariaLabel}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="appearance-none rounded-control border border-border bg-surface py-2 pl-3 pr-8 text-small text-text-primary outline-none transition focus:border-accent"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDownIcon
-        size={14}
-        className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted"
-      />
+    <div>
+      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+        {label}
+      </p>
+      <div className="flex flex-wrap gap-1.5">{children}</div>
     </div>
+  );
+}
+
+function OptionPill({ active, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-md border px-2.5 py-1 text-xs font-medium transition ${
+        active
+          ? "border-accent bg-accent text-white"
+          : "border-border text-text-secondary hover:border-accent/50 hover:text-text-primary"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -77,6 +81,20 @@ export default function Transactions() {
   const [supplier, setSupplier] = useState("ALL");
   const [detection, setDetection] = useState("ALL");
   const [sort, setSort] = useState({ key: "date", dir: "desc" });
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filtersRef = useRef(null);
+
+  // Close the Filters panel when clicking anywhere outside it.
+  useEffect(() => {
+    if (!filtersOpen) return undefined;
+    const onPointerDown = (e) => {
+      if (filtersRef.current && !filtersRef.current.contains(e.target)) {
+        setFiltersOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [filtersOpen]);
 
   const categories = useMemo(
     () => [...new Set((data || []).map((t) => t.category))].sort(),
@@ -132,12 +150,12 @@ export default function Transactions() {
     });
   }, [data, query, severity, category, supplier, detection, sort]);
 
-  const activeFilters =
-    query.trim() !== "" ||
-    severity !== "ALL" ||
-    category !== "ALL" ||
-    supplier !== "ALL" ||
-    detection !== "ALL";
+  const activeCount =
+    (severity !== "ALL" ? 1 : 0) +
+    (category !== "ALL" ? 1 : 0) +
+    (supplier !== "ALL" ? 1 : 0) +
+    (detection !== "ALL" ? 1 : 0) +
+    (query.trim() !== "" ? 1 : 0);
 
   const resetFilters = () => {
     setQuery("");
@@ -170,7 +188,7 @@ export default function Transactions() {
         </p>
       </div>
 
-      {/* Filters */}
+      {/* Search + Filters trigger */}
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex flex-1 items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-small lg:max-w-xs">
           <SearchIcon size={15} className="text-text-muted" />
@@ -181,54 +199,83 @@ export default function Transactions() {
             className="w-full bg-transparent text-text-primary outline-none placeholder:text-text-muted"
           />
         </label>
-        <div className="flex gap-1 rounded-control border border-border bg-surface p-1">
-          {SEVERITIES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setSeverity(s)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                severity === s ? "bg-accent text-white" : "text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-        <FilterSelect
-          ariaLabel="Filter by category"
-          value={category}
-          onChange={setCategory}
-          options={[
-            { value: "ALL", label: "All categories" },
-            ...categories.map((c) => ({ value: c, label: c })),
-          ]}
-        />
-        <FilterSelect
-          ariaLabel="Filter by supplier"
-          value={supplier}
-          onChange={setSupplier}
-          options={[
-            { value: "ALL", label: "All suppliers" },
-            ...suppliers.map((s) => ({ value: s, label: s })),
-          ]}
-        />
-        <FilterSelect
-          ariaLabel="Filter by detection type"
-          value={detection}
-          onChange={setDetection}
-          options={DETECTION_OPTIONS}
-        />
-        {activeFilters && (
+        <div className="relative" ref={filtersRef}>
           <button
             type="button"
-            onClick={resetFilters}
-            className="rounded-control border border-border bg-surface px-3 py-2 text-xs text-text-secondary transition hover:text-text-primary"
+            onClick={() => setFiltersOpen((o) => !o)}
+            className={`flex items-center gap-2 rounded-control border px-3.5 py-2 text-small font-medium transition ${
+              filtersOpen
+                ? "border-accent bg-accent text-white"
+                : "border-border bg-surface text-text-primary hover:border-accent/50"
+            }`}
           >
-            Clear filters
+            <FilterIcon size={15} />
+            Filters
+            {activeCount > 0 && (
+              <span className="tnum rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-semibold text-white ring-2 ring-surface">
+                {activeCount}
+              </span>
+            )}
           </button>
-        )}
-        <span className="tnum ml-auto text-xs text-ink-400">
+
+          {filtersOpen && (
+            <div className="absolute right-0 z-20 mt-2 w-[300px] rounded-card border border-border bg-surface p-4 shadow-xl shadow-black/30">
+              <p className="mb-3 text-sm font-semibold text-ink-900">Filters</p>
+              <div className="flex max-h-[60vh] flex-col gap-4 overflow-y-auto pr-1">
+                <FilterSection label="Severity">
+                  {SEVERITIES.map((s) => (
+                    <OptionPill
+                      key={s}
+                      active={severity === s}
+                      onClick={() => setSeverity(s)}
+                    >
+                      {s === "ALL" ? "All" : s}
+                    </OptionPill>
+                  ))}
+                </FilterSection>
+                <FilterSection label="Category">
+                  <OptionPill active={category === "ALL"} onClick={() => setCategory("ALL")}>
+                    All
+                  </OptionPill>
+                  {categories.map((c) => (
+                    <OptionPill key={c} active={category === c} onClick={() => setCategory(c)}>
+                      {c}
+                    </OptionPill>
+                  ))}
+                </FilterSection>
+                <FilterSection label="Supplier">
+                  <OptionPill active={supplier === "ALL"} onClick={() => setSupplier("ALL")}>
+                    All
+                  </OptionPill>
+                  {suppliers.map((s) => (
+                    <OptionPill key={s} active={supplier === s} onClick={() => setSupplier(s)}>
+                      {s}
+                    </OptionPill>
+                  ))}
+                </FilterSection>
+                <FilterSection label="Detection">
+                  {DETECTION_OPTIONS.map((o) => (
+                    <OptionPill
+                      key={o.value}
+                      active={detection === o.value}
+                      onClick={() => setDetection(o.value)}
+                    >
+                      {o.value === "ALL" ? "All" : o.label}
+                    </OptionPill>
+                  ))}
+                </FilterSection>
+              </div>
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="mt-4 w-full rounded-control border border-border py-2 text-xs font-medium text-text-secondary transition hover:border-red-500/40 hover:text-red-500"
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
+        </div>
+        <span className="tnum text-xs text-ink-400">
           {filtered.length.toLocaleString("en-IN")} rows
         </span>
       </div>
