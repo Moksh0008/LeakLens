@@ -35,7 +35,7 @@ const PROBLEMS = [
 export default function ProblemSection() {
   return (
     <section id="product" className="border-t border-border/60">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+      <div className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <Reveal className="max-w-2xl">
           <p className="overline">The Problem</p>
           <h2 className="mt-2 text-heading text-text-primary">

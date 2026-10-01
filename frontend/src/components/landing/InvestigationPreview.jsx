@@ -15,7 +15,7 @@ const EVIDENCE = [
 export default function InvestigationPreview() {
   return (
     <section className="border-t border-border/60">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
+      <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
         {/* Copy */}
         <Reveal className="order-2 max-w-xl lg:order-1">
           <p className="overline">Investigation</p>

@@ -22,7 +22,7 @@ export default function Hero() {
     <section className="relative overflow-hidden">
       {/* calm: no decorative gradients — whitespace does the work */}
 
-      <div className="mx-auto grid max-w-7xl items-center gap-16 px-4 pb-24 pt-16 sm:px-6 sm:pt-20 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pb-28 lg:pt-24">
+      <div className="mx-auto grid max-w-[1440px] items-center gap-16 px-4 pb-24 pt-16 sm:px-6 sm:pt-20 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pb-28 lg:pt-24">
         {/* Copy */}
         <div className="max-w-xl">
           <motion.p {...fade(0)} className="overline">

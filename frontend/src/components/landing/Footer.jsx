@@ -23,7 +23,7 @@ const ROUTES_SIGNED_IN = [
 export default function Footer() {
   return (
     <footer className="border-t border-border">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 md:flex-row md:items-start md:justify-between lg:px-8">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-4 py-10 sm:px-6 md:flex-row md:items-start md:justify-between lg:px-8">
         <div>
           <div className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-surface-elevated text-accent">
@@ -52,7 +52,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-border/60">
-        <p className="mx-auto max-w-7xl px-4 py-4 text-caption text-text-muted sm:px-6 lg:px-8">
+        <p className="mx-auto max-w-[1440px] px-4 py-4 text-caption text-text-muted sm:px-6 lg:px-8">
           FINATHON 2026 · FIN-04 — Procurement Spend Leakage · Illustrative demo data only
         </p>
       </div>

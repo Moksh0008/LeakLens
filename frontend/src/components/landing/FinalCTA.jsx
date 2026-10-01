@@ -8,7 +8,7 @@ import { isSignedIn } from "../../services/auth";
 export default function FinalCTA() {
   return (
     <section className="border-t border-border/60">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="mx-auto max-w-[1440px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-heading text-text-primary sm:text-3xl">
             Turn procurement data into actionable insight.
