@@ -85,7 +85,7 @@ export default function LeakageAnalysis() {
   return (
     <div className="mx-auto flex max-w-[1400px] flex-col gap-5">
       <div>
-        <h1 className="text-xl font-semibold text-ink-900">Leakage Analysis</h1>
+        <h1 className="text-xl font-semibold text-text-primary">Leakage Analysis</h1>
         <p className="mt-0.5 text-sm text-ink-400">
           All leakage alerts — triage by severity and detection type, then
           investigate
@@ -96,7 +96,7 @@ export default function LeakageAnalysis() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="rounded-card border border-border bg-surface p-4">
           <p className="text-caption text-ink-400">Open alerts</p>
-          <p className="tnum mt-1 text-2xl font-semibold text-ink-900">
+          <p className="tnum mt-1 text-2xl font-semibold text-text-primary">
             {alerts.length.toLocaleString("en-IN")}
           </p>
         </div>
@@ -108,7 +108,7 @@ export default function LeakageAnalysis() {
         </div>
         <div className="rounded-card border border-border bg-surface p-4">
           <p className="text-caption text-ink-400">High / Medium</p>
-          <p className="tnum mt-1 text-2xl font-semibold text-ink-900">
+          <p className="tnum mt-1 text-2xl font-semibold text-text-primary">
             {stats.bySeverity.HIGH}
             <span className="text-base text-ink-400"> / </span>
             {stats.bySeverity.MEDIUM}
@@ -116,7 +116,7 @@ export default function LeakageAnalysis() {
         </div>
         <div className="rounded-card border border-border bg-surface p-4">
           <p className="text-caption text-ink-400">Detection types</p>
-          <p className="tnum mt-1 text-2xl font-semibold text-ink-900">
+          <p className="tnum mt-1 text-2xl font-semibold text-text-primary">
             {detectionTypes.length}
           </p>
         </div>
@@ -155,7 +155,7 @@ export default function LeakageAnalysis() {
 
           {filtersOpen && (
             <div className="absolute right-0 z-20 mt-2 w-[280px] rounded-card border border-border bg-surface p-4 shadow-xl shadow-black/30">
-              <p className="mb-3 text-sm font-semibold text-ink-900">Filters</p>
+              <p className="mb-3 text-sm font-semibold text-text-primary">Filters</p>
               <div className="flex flex-col gap-4">
                 <div>
                   <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-400">
