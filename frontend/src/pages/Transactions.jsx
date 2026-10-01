@@ -6,6 +6,8 @@ import { formatCompactINR, formatDate, formatINR } from "../utils/format";
 import { DetectionBadge, SeverityBadge } from "../components/ui/Badges";
 import { EmptyPanel, ErrorPanel, LoadingPanel } from "../components/ui/States";
 import { SearchIcon } from "../components/ui/Icons";
+import EmptyWorkspace from "../components/EmptyWorkspace";
+import { IS_MOCK, hasMockData } from "../services/api";
 
 const SEVERITIES = ["ALL", "HIGH", "MEDIUM", "LOW"];
 
@@ -34,6 +36,10 @@ export default function Transactions() {
 
   if (loading) return <LoadingPanel />;
   if (error) return <ErrorPanel message={error.message} onRetry={refetch} />;
+
+  // No content until a CSV has been imported (mock flag or empty DB).
+  const workspaceEmpty = IS_MOCK ? !hasMockData() : (data || []).length === 0;
+  if (workspaceEmpty) return <EmptyWorkspace />;
 
   return (
     <div className="mx-auto flex max-w-[1400px] flex-col gap-5">

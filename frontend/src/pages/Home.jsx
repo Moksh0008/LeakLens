@@ -10,10 +10,8 @@
 // unreachable or the workspace is still empty (so the page never breaks).
 
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import SectionCard from "../components/dashboard/SectionCard";
-import Button from "../components/ui/Button";
-import { UploadIcon } from "../components/ui/Icons";
+import EmptyWorkspace from "../components/EmptyWorkspace";
 import QuickSnapshot from "../components/home/QuickSnapshot";
 import PrimaryActions from "../components/home/PrimaryActions";
 import IdentifyFeatures from "../components/home/IdentifyFeatures";
@@ -180,35 +178,7 @@ export default function Home() {
           </span>
         </motion.div>
 
-        <motion.section
-          initial={reduce ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
-          className="rounded-card border border-border bg-surface p-8 text-center shadow-[var(--shadow-card)]"
-        >
-          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-card border border-border bg-surface-elevated text-accent">
-            <UploadIcon size={20} />
-          </span>
-          <h2 className="mt-5 text-section font-semibold text-text-primary">
-            Your workspace is empty
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-small text-text-secondary">
-            Upload your CSV file to get analysis — LeakLens will surface price
-            anomalies, missed discounts and other leakage as soon as your
-            transactions are in.
-          </p>
-          <div className="mt-6 flex justify-center">
-            <Link to="/import">
-              <Button variant="primary" className="h-11 px-6">
-                <UploadIcon size={15} />
-                Upload CSV
-              </Button>
-            </Link>
-          </div>
-          <p className="mt-5 text-caption text-text-muted">
-            New account? Head to Data Import and drop your procurement CSV.
-          </p>
-        </motion.section>
+        <EmptyWorkspace />
       </div>
     );
   }

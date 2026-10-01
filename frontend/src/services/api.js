@@ -31,9 +31,15 @@ import {
 } from "./mockData";
 
 // Mock by default so the app always runs; flip via env for the real backend.
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
+export const IS_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
+const USE_MOCK = IS_MOCK;
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const MOCK_DELAY_MS = 600;
+
+/** True once a CSV upload has populated the (mock) workspace. */
+export function hasMockData() {
+  return localStorage.getItem("leaklens.hasData") === "1";
+}
 
 function mockResponse(data) {
   return new Promise((resolve) =>

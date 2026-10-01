@@ -30,6 +30,8 @@ import LeakageByBar from "../components/charts/LeakageByBar";
 import PriceVarianceChart from "../components/charts/PriceVarianceChart";
 import { ErrorPanel, LoadingPanel } from "../components/ui/States";
 import Badge from "../components/ui/Badge";
+import EmptyWorkspace from "../components/EmptyWorkspace";
+import { IS_MOCK, hasMockData } from "../services/api";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -61,6 +63,10 @@ export default function Dashboard() {
   if (error) return <ErrorPanel message={error.message} onRetry={refetch} />;
 
   const d = dashboard.data;
+
+  // No content until a CSV has been imported (mock flag or empty DB).
+  const workspaceEmpty = IS_MOCK ? !hasMockData() : (d?.transactionsAnalyzed ?? 0) === 0;
+  if (workspaceEmpty) return <EmptyWorkspace />;
 
   return (
     <div className="flex flex-col gap-8">
