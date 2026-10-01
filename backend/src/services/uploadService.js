@@ -4,6 +4,27 @@ const supabase = require("./supabase");
 const { parseCSV } = require("./csvService");
 const { runDetection } = require("./detectionService");
 
+// Normalize common CSV date formats to ISO (YYYY-MM-DD) so the DB `date`
+// column accepts them. Indian convention DD-MM-YYYY and DD/MM/YYYY are the
+// usual variants; ISO passes straight through.
+function normalizeDate(raw) {
+    const s = String(raw || "").trim();
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; // already ISO
+
+    let m = s.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/); // DD-MM-YYYY
+    if (m) {
+        return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+    }
+
+    m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); // DD/MM/YYYY
+    if (m) {
+        return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+    }
+
+    return s; // let the DB surface anything else as a row error
+}
+
 const findDuplicateTransactionIds = (rows) => {
     const seen = new Set();
     const duplicates = new Set();
@@ -88,7 +109,7 @@ const validateAndTransformRows = (rows) => {
 
         validRows.push({
             transaction_id: row.transactionId.trim(),
-            date: row.date.trim(),
+            date: normalizeDate(row.date),
             product: row.product.trim(),
             category: row.category.trim(),
             supplier: row.supplier.trim(),
