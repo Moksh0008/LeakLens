@@ -44,6 +44,19 @@ router.post("/signup", async (req, res) => {
             });
         }
 
+        // session === null means the project requires email confirmation.
+        if (!data.session) {
+            return res.status(200).json({
+                success: true,
+                message:
+                    "Account created. Check your inbox for a confirmation link before logging in.",
+                user: data.user
+                    ? { id: data.user.id, email: data.user.email }
+                    : null,
+                requiresEmailConfirmation: true,
+            });
+        }
+
         res.json({
             success: true,
             message: "Account created.",
@@ -78,9 +91,16 @@ router.post("/login", async (req, res) => {
         });
 
         if (error) {
+            // Surface Supabase's real reason (unconfirmed email, rate
+            // limit, etc.) — only bad credentials get the generic text.
+            const generic =
+                error.code === "invalid_credentials" ||
+                /invalid login credentials/i.test(error.message || "");
             return res.status(401).json({
                 success: false,
-                message: "Invalid email or password.",
+                message: generic
+                    ? "Invalid email or password."
+                    : error.message,
             });
         }
 
