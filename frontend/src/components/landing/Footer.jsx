@@ -2,6 +2,7 @@
 
 import { Link } from "react-router-dom";
 import { LensLogo } from "../ui/Icons";
+import { isSignedIn } from "../../services/auth";
 
 const SECTIONS = [
   { label: "Product", href: "#product" },
@@ -9,9 +10,14 @@ const SECTIONS = [
   { label: "Insights", href: "#insights" },
 ];
 
-const ROUTES = [
+const ROUTES_SIGNED_OUT = [
   { label: "Login", to: "/login" },
   { label: "Get Started", to: "/signup" },
+];
+
+const ROUTES_SIGNED_IN = [
+  { label: "Workspace", to: "/home" },
+  { label: "Profile", to: "/profile" },
 ];
 
 export default function Footer() {
@@ -37,7 +43,7 @@ export default function Footer() {
             ))}
           </nav>
           <nav aria-label="Account" className="flex flex-col gap-2">
-            {ROUTES.map((r) => (
+            {(isSignedIn() ? ROUTES_SIGNED_IN : ROUTES_SIGNED_OUT).map((r) => (
               <Link key={r.to} to={r.to} className="text-small text-text-secondary transition-colors hover:text-text-primary">
                 {r.label}
               </Link>

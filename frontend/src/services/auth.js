@@ -135,6 +135,20 @@ export function getStoredSession() {
   }
 }
 
+/** Stored user profile (set on login in both mock and real modes). */
+export function getStoredUser() {
+  try {
+    return JSON.parse(localStorage.getItem("leaklens.user") || "null");
+  } catch {
+    return null;
+  }
+}
+
+/** True while the visitor is signed in (drives auth-aware landing UI). */
+export function isSignedIn() {
+  return !!getStoredUser();
+}
+
 /** Clear the stored session and profile (logout). */
 export function clearSession() {
   localStorage.removeItem(SESSION_KEY);

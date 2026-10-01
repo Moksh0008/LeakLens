@@ -5,11 +5,13 @@ import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import Button from "../ui/Button";
 import HeroVisual from "./HeroVisual";
+import { isSignedIn } from "../../services/auth";
 
 const EASE = [0.22, 1, 0.36, 1];
 
 export default function Hero() {
   const reduce = useReducedMotion();
+  const signedIn = isSignedIn();
   const fade = (delay) => ({
     initial: { opacity: 0, y: reduce ? 0 : 18 },
     animate: { opacity: 1, y: 0 },
@@ -41,10 +43,12 @@ export default function Hero() {
           </motion.p>
 
           <motion.div {...fade(0.24)} className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Link to="/login" className="contents">
-              <Button variant="primary" size="md" className="h-11 w-full px-6 sm:w-auto">Start Analyzing</Button>
+            <Link to={signedIn ? "/home" : "/login"} className="contents">
+              <Button variant="primary" size="md" className="h-11 w-full px-6 sm:w-auto">
+                {signedIn ? "Open Your Workspace" : "Start Analyzing"}
+              </Button>
             </Link>
-            <Link to="/login" className="contents">
+            <Link to={signedIn ? "/dashboard" : "/login"} className="contents">
               <Button variant="secondary" size="md" className="h-11 px-6">Explore Dashboard</Button>
             </Link>
           </motion.div>

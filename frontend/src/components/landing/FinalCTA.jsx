@@ -3,6 +3,7 @@
 import { Link } from "react-router-dom";
 import { Reveal } from "./motion";
 import Button from "../ui/Button";
+import { isSignedIn } from "../../services/auth";
 
 export default function FinalCTA() {
   return (
@@ -17,8 +18,10 @@ export default function FinalCTA() {
             investigate potential leakage from one platform.
           </p>
           <div className="mt-8 flex justify-center">
-            <Link to="/signup">
-              <Button variant="primary" size="md" className="h-11 px-8">Get Started</Button>
+            <Link to={isSignedIn() ? "/home" : "/signup"}>
+              <Button variant="primary" size="md" className="h-11 px-8">
+                {isSignedIn() ? "Open Your Workspace" : "Get Started"}
+              </Button>
             </Link>
           </div>
         </Reveal>

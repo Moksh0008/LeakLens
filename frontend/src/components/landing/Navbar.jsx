@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { LensLogo } from "../ui/Icons";
 import Button from "../ui/Button";
+import ProfileMenu from "../ProfileMenu";
+import { isSignedIn } from "../../services/auth";
 
 const SECTIONS = [
   { label: "Product", href: "#product" },
@@ -16,6 +18,7 @@ const SECTIONS = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const signedIn = isSignedIn();
 
   // If the viewport grows past the md breakpoint while the mobile menu is
   // open (e.g. phone rotated, window resized), close it so it never leaks
@@ -53,14 +56,25 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Auth actions */}
+        {/* Auth actions — signed-in visitors get the workspace + avatar */}
         <div className="hidden items-center gap-2 md:flex">
-          <Link to="/login">
-            <Button variant="ghost" size="sm">Log in</Button>
-          </Link>
-          <Link to="/signup">
-            <Button variant="primary" size="sm">Get Started</Button>
-          </Link>
+          {signedIn ? (
+            <>
+              <Link to="/home">
+                <Button variant="primary" size="sm">Open Workspace</Button>
+              </Link>
+              <ProfileMenu />
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">Log in</Button>
+              </Link>
+              <Link to="/signup">
+                <Button variant="primary" size="sm">Get Started</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -92,12 +106,20 @@ export default function Navbar() {
               </a>
             ))}
             <div className="mt-2 flex gap-2 border-t border-border pt-3">
-              <Link to="/login" className="flex-1">
-                <Button variant="secondary" className="w-full">Log in</Button>
-              </Link>
-              <Link to="/signup" className="flex-1">
-                <Button variant="primary" className="w-full">Get Started</Button>
-              </Link>
+              {signedIn ? (
+                <Link to="/home" className="flex-1">
+                  <Button variant="primary" className="w-full">Open Workspace</Button>
+                </Link>
+              ) : (
+                <>
+                  <Link to="/login" className="flex-1">
+                    <Button variant="secondary" className="w-full">Log in</Button>
+                  </Link>
+                  <Link to="/signup" className="flex-1">
+                    <Button variant="primary" className="w-full">Get Started</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
