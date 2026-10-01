@@ -47,11 +47,22 @@ async function authCall(path, payload) {
   return body;
 }
 
+/** Derive a display name from the email local part: "user1@a.com" -> "User1". */
+function nameFromEmail(email) {
+  const local = String(email || "").split("@")[0];
+  const pretty = local
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(" ");
+  return pretty || "LeakLens User";
+}
+
 /** Sign in with an existing account. */
 export async function signIn({ email, password }) {
   if (USE_MOCK) {
     await delay(NETWORK_DELAY);
-    const demoUser = { email, fullName: "Alex" };
+    const demoUser = { email, fullName: nameFromEmail(email) };
     localStorage.setItem("leaklens.user", JSON.stringify(demoUser));
     return { user: demoUser };
   }
@@ -149,8 +160,10 @@ export function isSignedIn() {
   return !!getStoredUser();
 }
 
-/** Clear the stored session and profile (logout). */
+/** Clear the stored session, profile and mock workspace (logout). */
 export function clearSession() {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem("leaklens.user");
+  // Each account starts with an empty workspace in mock mode too.
+  localStorage.removeItem("leaklens.hasData");
 }

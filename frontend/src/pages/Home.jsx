@@ -114,6 +114,11 @@ export default function Home() {
   const [requiresAttention, setRequiresAttention] = useState(REQUIRES_ATTENTION);
   const [usingRealData, setUsingRealData] = useState(false);
   const [workspaceEmpty, setWorkspaceEmpty] = useState(false);
+  // Mock mode has no persistence — remember per-account whether a CSV
+  // was uploaded so a fresh login sees an empty workspace too.
+  const [mockHasData] = useState(
+    () => localStorage.getItem("leaklens.hasData") === "1",
+  );
 
   useEffect(() => {
     if (USE_MOCK) return undefined; // demo constants are the final state
@@ -152,7 +157,8 @@ export default function Home() {
   }, []);
 
   // Fresh account — no content, just the upload prompt.
-  if (workspaceEmpty) {
+  // (Real mode: no rows in the database. Mock mode: nothing uploaded yet.)
+  if (workspaceEmpty || (USE_MOCK && !mockHasData)) {
     return (
       <div className="flex flex-col gap-8">
         <motion.div

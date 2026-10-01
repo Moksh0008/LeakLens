@@ -155,12 +155,15 @@ export async function uploadProcurementFile(file) {
 
   if (USE_MOCK) {
     await mockResponse(null); // simulate processing delay
+    // Mark the mock workspace as populated so Home/Dashboard stop
+    // showing the empty state and start showing the sample dataset.
+    localStorage.setItem("leaklens.hasData", "1");
     return {
       success: true,
       transactionsInserted: mockTransactions.length,
       flaggedTransactions: mockLeakage.length,
       message:
-        "Demo mode: illustrative result. Connect the backend (VITE_USE_MOCK=false) to process your CSV.",
+        "Demo mode: sample dataset loaded — open Home or Dashboard to explore it.",
     };
   }
 
