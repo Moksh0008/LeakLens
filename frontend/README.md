@@ -1,16 +1,29 @@
-# React + Vite
+# LeakLens — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 + Vite + Tailwind CSS 4 single-page app for LeakLens.
 
-Currently, two official plugins are available:
+## Scripts
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev      # dev server at http://localhost:5173
+npm run build    # production build to dist/
+npm run preview  # serve the production build locally
+npm run lint     # oxlint
+```
 
-## React Compiler
+## Environment
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Copy `.env.example` to `.env`:
 
-## Expanding the Oxlint configuration
+- `VITE_USE_MOCK=true` — demo mode: generated data in the browser, no backend required (default).
+- `VITE_USE_MOCK=false` + `VITE_API_URL=http://localhost:5000/api` — real mode against the Express backend.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+On Vercel, set `VITE_USE_MOCK=false` and `VITE_API_URL` to the deployed backend URL (see the root README).
+
+## Structure
+
+- `src/pages/` — routes: Landing, Home, Dashboard, Upload, Transactions, LeakageAnalysis, Investigation, Analytics, Profile
+- `src/components/` — app layout, landing sections, charts (Recharts), shared UI primitives
+- `src/services/` — API client (`api.js`), auth (`auth.js`), demo data (`mockData.js`)
+- `src/styles/globals.css` — Tailwind theme tokens
