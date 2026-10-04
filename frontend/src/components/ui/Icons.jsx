@@ -204,6 +204,97 @@ export function FilterIcon(props) {
   );
 }
 
+export function ShieldIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M12 3 5 5.8v5.4c0 4.3 2.9 7.4 7 8.8 4.1-1.4 7-4.5 7-8.8V5.8L12 3Z" />
+      <path d="m9.2 11.6 2 2 3.6-3.9" />
+    </Svg>
+  );
+}
+
+export function KeyIcon(props) {
+  return (
+    <Svg {...props}>
+      <circle cx="8" cy="15" r="4.2" />
+      <path d="m11 12 8.5-8.5" />
+      <path d="M15.5 7.5 18 10" />
+      <path d="M18.5 4.5 21 7" />
+    </Svg>
+  );
+}
+
+export function CopyIcon(props) {
+  return (
+    <Svg {...props}>
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </Svg>
+  );
+}
+
+export function CheckIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="m4.5 12.5 5 5 10-11" />
+    </Svg>
+  );
+}
+
+export function MailIcon(props) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3.5 7 7.4 5.2a2 2 0 0 0 2.2 0L20.5 7" />
+    </Svg>
+  );
+}
+
+export function BuildingIcon(props) {
+  return (
+    <Svg {...props}>
+      <rect x="4" y="3" width="16" height="18" rx="1.5" />
+      <path d="M9 7h.01M15 7h.01M9 11h.01M15 11h.01M9 15h.01M15 15h.01" />
+      <path d="M10 21v-3h4v3" />
+    </Svg>
+  );
+}
+
+export function CalendarIcon(props) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M8 3v4M16 3v4M3 10h18" />
+    </Svg>
+  );
+}
+
+export function UserIcon(props) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="8" r="3.6" />
+      <path d="M5 20.4c.8-3.4 3.6-5.4 7-5.4s6.2 2 7 5.4" />
+    </Svg>
+  );
+}
+
+export function BadgeCheckIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="m12 2.6 2.3 1.9 3-.3 1 2.8 2.6 1.5-.7 2.9.7 2.9-2.6 1.5-1 2.8-3-.3-2.3 1.9-2.3-1.9-3 .3-1-2.8L3.1 14l.7-2.9-.7-2.9 2.6-1.5 1-2.8 3 .3L12 2.6Z" />
+      <path d="m9.2 11.8 2 2 3.6-3.9" />
+    </Svg>
+  );
+}
+
+export function ActivityIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M3 12h4l2.5-7 5 14 2.5-7h4" />
+    </Svg>
+  );
+}
+
 export function LensLogo({ size = 22, ...props }) {
   return (
     <Svg size={size} strokeWidth={2} {...props}>

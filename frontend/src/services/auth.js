@@ -146,6 +146,46 @@ export function getStoredSession() {
   }
 }
 
+/**
+ * Change the signed-in user's password. Real mode requires the current
+ * password and the stored access token; mock mode just validates and
+ * succeeds so the flow works everywhere.
+ */
+export async function changePassword(currentPassword, newPassword) {
+  if (USE_MOCK) {
+    await delay(NETWORK_DELAY);
+    if (!currentPassword) {
+      throw new Error("Enter your current password.");
+    }
+    return { success: true, message: "Password updated (demo mode)." };
+  }
+
+  const session = getStoredSession();
+  if (!session?.accessToken) {
+    throw new Error("You are not signed in.");
+  }
+
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/api/auth/change-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  } catch {
+    throw new Error("Cannot reach the server. Is the backend running?");
+  }
+
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(body.message || `Password change failed (${res.status}).`);
+  }
+  return body;
+}
+
 /** Stored user profile (set on login in both mock and real modes). */
 export function getStoredUser() {
   try {

@@ -3,6 +3,19 @@ const supabase = require("../services/supabase");
 
 const router = express.Router();
 
+/** Shape a user object for API responses (metadata → flat fields). */
+function shapeUser(user) {
+    if (!user) return null;
+    return {
+        id: user.id,
+        email: user.email,
+        fullName: user.user_metadata?.full_name ?? null,
+        organization: user.user_metadata?.organization ?? null,
+        role: user.user_metadata?.role ?? null,
+        createdAt: user.created_at ?? null,
+    };
+}
+
 // POST /api/auth/signup — creates a real user via Supabase Auth.
 // Profile fields ride along in user_metadata (no custom tables needed).
 router.post("/signup", async (req, res) => {
@@ -60,9 +73,7 @@ router.post("/signup", async (req, res) => {
         res.json({
             success: true,
             message: "Account created.",
-            user: data.user
-                ? { id: data.user.id, email: data.user.email }
-                : null,
+            user: shapeUser(data.user),
         });
     } catch (err) {
         console.error("Signup error:", err.message);
@@ -106,11 +117,7 @@ router.post("/login", async (req, res) => {
 
         res.json({
             success: true,
-            user: {
-                id: data.user.id,
-                email: data.user.email,
-                fullName: data.user.user_metadata?.full_name ?? null,
-            },
+            user: shapeUser(data.user),
             session: {
                 accessToken: data.session.access_token,
                 refreshToken: data.session.refresh_token,
@@ -150,9 +157,9 @@ router.post("/change-email", async (req, res) => {
         }
 
         // 1. Identify the caller from their access token.
-        const { data: tokenData, error: tokenError } =
+        const { data: userData, error: userError } =
             await supabase.auth.getUser(token);
-        if (tokenError || !tokenData?.user) {
+        if (userError || !userData?.user) {
             return res.status(401).json({
                 success: false,
                 message: "Session expired. Please sign in again.",
@@ -161,7 +168,7 @@ router.post("/change-email", async (req, res) => {
 
         // 2. Re-verify the current password before touching the account.
         const { error: passwordError } = await supabase.auth.signInWithPassword({
-            email: tokenData.user.email,
+            email: userData.user.email,
             password: String(currentPassword),
         });
         if (passwordError) {
@@ -173,7 +180,7 @@ router.post("/change-email", async (req, res) => {
 
         // 3. Apply the change (confirmed immediately for the demo flow).
         const { data: updated, error: updateError } =
-            await supabase.auth.admin.updateUserById(tokenData.user.id, {
+            await supabase.auth.admin.updateUserById(userData.user.id, {
                 email: String(newEmail).trim().toLowerCase(),
                 email_confirm: true,
             });
@@ -193,17 +200,92 @@ router.post("/change-email", async (req, res) => {
         res.json({
             success: true,
             message: "Email updated. Use the new email next time you sign in.",
-            user: {
-                id: updated.user.id,
-                email: updated.user.email,
-                fullName: updated.user.user_metadata?.full_name ?? null,
-            },
+            user: shapeUser(updated.user),
         });
     } catch (err) {
         console.error("Change-email error:", err.message);
         res.status(500).json({
             success: false,
             message: "Email change failed. Please try again.",
+        });
+    }
+});
+
+// POST /api/auth/change-password — requires the caller's access token
+// (Authorization: Bearer) plus their current password.
+router.post("/change-password", async (req, res) => {
+    try {
+        const token = String(req.headers.authorization || "")
+            .replace(/^Bearer\s+/i, "")
+            .trim();
+
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: "Missing access token.",
+            });
+        }
+
+        const { currentPassword, newPassword } = req.body || {};
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Current and new password are required.",
+            });
+        }
+
+        if (String(newPassword).length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: "New password must be at least 6 characters.",
+            });
+        }
+
+        // 1. Identify the caller from their access token.
+        const { data: userData, error: userError } =
+            await supabase.auth.getUser(token);
+        if (userError || !userData?.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Session expired. Please sign in again.",
+            });
+        }
+
+        // 2. Re-verify the current password before touching the account.
+        const { error: passwordError } = await supabase.auth.signInWithPassword({
+            email: userData.user.email,
+            password: String(currentPassword),
+        });
+        if (passwordError) {
+            return res.status(401).json({
+                success: false,
+                message: "Current password is incorrect.",
+            });
+        }
+
+        // 3. Apply the change. admin.updateUserById does NOT invalidate
+        //    the caller's session, so the demo flow stays signed in.
+        const { error: updateError } = await supabase.auth.admin.updateUserById(
+            userData.user.id,
+            { password: String(newPassword) }
+        );
+
+        if (updateError) {
+            return res.status(400).json({
+                success: false,
+                message: updateError.message,
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Password updated. Use it the next time you sign in.",
+        });
+    } catch (err) {
+        console.error("Change-password error:", err.message);
+        res.status(500).json({
+            success: false,
+            message: "Password change failed. Please try again.",
         });
     }
 });
