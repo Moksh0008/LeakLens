@@ -15,14 +15,15 @@ export function formatINR(value) {
   return `₹${inrFull.format(value)}`;
 }
 
-/** ₹25.4M — compact (use in KPI cards, chart axes) */
-export function formatCompactINR(value) {
+/** ₹25.4M — compact (use in KPI cards, chart axes). Pass a symbol to
+ * override the default ₹ (Settings → Currency display). */
+export function formatCompactINR(value, symbol = "₹") {
   if (value === null || value === undefined || Number.isNaN(value)) return "—";
   const abs = Math.abs(value);
-  if (abs >= 1_000_000_000) return `₹${(value / 1_000_000_000).toFixed(2)}B`;
-  if (abs >= 1_000_000) return `₹${(value / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `₹${(value / 1_000).toFixed(0)}K`;
-  return `₹${value}`;
+  if (abs >= 1_000_000_000) return `${symbol}${(value / 1_000_000_000).toFixed(2)}B`;
+  if (abs >= 1_000_000) return `${symbol}${(value / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${symbol}${(value / 1_000).toFixed(0)}K`;
+  return `${symbol}${value}`;
 }
 
 /** 10,420 */

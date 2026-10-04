@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getTransactions } from "../services/api";
 import { useFetch } from "../hooks/useFetch";
-import { formatCompactINR, formatDate, formatINR } from "../utils/format";
+import { formatCompactINR, formatDate } from "../utils/format";
 import { DetectionBadge, SeverityBadge } from "../components/ui/Badges";
 import { EmptyPanel, ErrorPanel, LoadingPanel } from "../components/ui/States";
 import { FilterIcon, SearchIcon } from "../components/ui/Icons";
@@ -83,8 +83,27 @@ export default function Transactions() {
   const [sort, setSort] = useState({ key: "date", dir: "desc" });
   const [filtersOpen, setFiltersOpen] = useState(false);
   const filtersRef = useRef(null);
+  // Settings → Table rows per page.
+  const [pageSize, setPageSize] = useState(
+    () => localStorage.getItem("leaklens.pageSize") || "50",
+  );
+  // Settings → Currency display.
+  const [currencyCode, setCurrencyCode] = useState(
+    () => localStorage.getItem("leaklens.currency") || "INR",
+  );
 
-  // Close the Filters panel when clicking anywhere outside it.
+  // The Settings side-panel dispatches this when any preference changes;
+  // re-read so open views apply the new pref without a reload.
+  useEffect(() => {
+    const sync = () => {
+      setPageSize(localStorage.getItem("leaklens.pageSize") || "50");
+      setCurrencyCode(localStorage.getItem("leaklens.currency") || "INR");
+    };
+    window.addEventListener("leaklens.prefs-changed", sync);
+    return () => window.removeEventListener("leaklens.prefs-changed", sync);
+  }, []);
+
+  const currency = currencyCode === "USD" ? "$" : "₹";
   useEffect(() => {
     if (!filtersOpen) return undefined;
     const onPointerDown = (e) => {
@@ -301,7 +320,7 @@ export default function Transactions() {
               {/* Flagged rows open the Investigation view (flagged list +
                   evidence) for that transaction; Clean rows are read-only —
                   there is nothing to investigate on them. */}
-              {filtered.slice(0, 100).map((t) => (
+              {filtered.slice(0, pageSize).map((t) => (
                 <tr
                   key={t.transactionId}
                   onClick={() =>
@@ -318,9 +337,9 @@ export default function Transactions() {
                   <td className="px-4 py-3 text-ink-600">{t.product}</td>
                   <td className="px-4 py-3 text-ink-600">{t.supplier}</td>
                   <td className="px-4 py-3 text-ink-500">{formatDate(t.date)}</td>
-                  <td className="tnum px-4 py-3 text-right text-ink-700">{formatINR(t.actualPrice)}</td>
+                  <td className="tnum px-4 py-3 text-right text-ink-700">{currency}{Number(t.actualPrice ?? t.unitPrice ?? 0).toLocaleString("en-IN")}</td>
                   <td className="tnum px-4 py-3 text-right font-medium text-red-600">
-                    {t.potentialLeakage > 0 ? formatCompactINR(t.potentialLeakage) : "—"}
+                    {t.potentialLeakage > 0 ? formatCompactINR(t.potentialLeakage, currency) : "—"}
                   </td>
                   <td className="px-4 py-3"><DetectionBadge type={t.detectionType} /></td>
                   <td className="px-4 py-3"><SeverityBadge severity={t.severity} /></td>
@@ -328,9 +347,9 @@ export default function Transactions() {
               ))}
             </tbody>
           </table>
-          {filtered.length > 100 && (
+          {filtered.length > pageSize && (
             <p className="px-4 py-3 text-xs text-ink-400">
-              Showing first 100 of {filtered.length.toLocaleString("en-IN")} — refine filters to narrow down.
+              Showing first {pageSize} of {filtered.length.toLocaleString("en-IN")} — refine filters to narrow down.
             </p>
           )}
         </div>

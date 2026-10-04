@@ -3,7 +3,7 @@
 // alert summary stats, severity/detection triage, and the full alert feed.
 // Clicking an alert drills into /investigation for the evidence trail.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLeakage } from "../services/api";
 import { useFetch } from "../hooks/useFetch";
@@ -29,8 +29,27 @@ export default function LeakageAnalysis() {
   const [detection, setDetection] = useState("ALL");
   const [sort, setSort] = useState("impact");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  // Settings → Alert severity floor: hide alerts below the chosen bar.
+  const [alertFloor, setAlertFloor] = useState(() =>
+    localStorage.getItem("leaklens.alertsSeverity") || "ALL",
+  );
 
+  useEffect(() => {
+    const sync = () =>
+      setAlertFloor(localStorage.getItem("leaklens.alertsSeverity") || "ALL");
+    window.addEventListener("leaklens.prefs-changed", sync);
+    return () => window.removeEventListener("leaklens.prefs-changed", sync);
+  }, []);
+
+  // Raw alert list (unaffected by settings) — drives the gate and stats.
   const alerts = useMemo(() => data || [], [data]);
+
+  // Settings → Alert severity floor: only the feed below is trimmed.
+  const visible = useMemo(() => {
+    const floor =
+      alertFloor === "HIGH" ? 0 : alertFloor === "MEDIUM_PLUS" ? 1 : 2;
+    return alerts.filter((a) => (SEVERITY_ORDER[a.severity] ?? 9) <= floor);
+  }, [alerts, alertFloor]);
 
   const stats = useMemo(() => {
     const bySeverity = { HIGH: 0, MEDIUM: 0, LOW: 0 };
@@ -50,7 +69,7 @@ export default function LeakageAnalysis() {
   );
 
   const filtered = useMemo(() => {
-    let rows = [...alerts];
+    let rows = [...visible];
     if (severity !== "ALL") rows = rows.filter((a) => a.severity === severity);
     if (detection !== "ALL") rows = rows.filter((a) => a.detectionType === detection);
     const q = query.trim().toLowerCase();
@@ -69,7 +88,7 @@ export default function LeakageAnalysis() {
       return a.transactionId.localeCompare(b.transactionId);
     });
     return rows;
-  }, [alerts, severity, detection, query, sort]);
+  }, [visible, severity, detection, query, sort]);
 
   if (loading) return <LoadingPanel label="Loading leakage alerts…" />;
   if (error) return <ErrorPanel message={error.message} onRetry={refetch} />;
@@ -252,7 +271,11 @@ export default function LeakageAnalysis() {
       {filtered.length === 0 ? (
         <EmptyPanel
           message="No alerts match your filters"
-          hint="Try a different search, or press Clear filters"
+          hint={
+            activeFilters > 0
+              ? "Try a different search, or press Clear filters"
+              : "No alerts at this severity level — adjust the Alert severity floor in Settings"
+          }
         />
       ) : (
         <div className="overflow-x-auto rounded-card border border-border bg-surface">

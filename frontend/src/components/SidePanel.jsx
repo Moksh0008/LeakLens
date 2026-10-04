@@ -2,13 +2,16 @@
 // Settings and Help. Every control is functional and persists via
 // localStorage. Esc / backdrop click closes it. On mobile it overlays.
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import { CloseIcon } from "./ui/Icons";
 
 const PREFS = {
   defaultLanding: "leaklens.defaultLanding", // "home" | "dashboard"
+  pageSize: "leaklens.pageSize",             // "25" | "50" | "100"
+  alertFloor: "leaklens.alertsSeverity",     // "ALL" | "MEDIUM_PLUS" | "HIGH"
+  currency: "leaklens.currency",             // "INR" | "USD"
   density: "leaklens.density",               // "comfortable" | "compact"
   motion: "leaklens.motion",                 // "full" | "reduced"
 };
@@ -27,6 +30,18 @@ export function setPref(key, value) {
   } catch {
     /* storage unavailable — control still reflects the session choice */
   }
+}
+
+/** localStorage-backed preference state — re-renders the panel on change. */
+function usePref(key, fallback) {
+  const [value, setValue] = useState(() => getPref(key, fallback));
+  const update = (v) => {
+    setPref(key, v);
+    setValue(v);
+    // Pages listen for this so open views apply the pref immediately.
+    window.dispatchEvent(new Event("leaklens.prefs-changed"));
+  };
+  return [value, update];
 }
 
 /** One row: label + description + a working segmented control. */
@@ -64,45 +79,87 @@ function PrefRow({ label, description, options, value, onChange }) {
 }
 
 function SettingsContent() {
-  const [landing, setLanding] = [getPref(PREFS.defaultLanding, "home"), (v) => setPref(PREFS.defaultLanding, v)];
-  const [density, setDensity] = [getPref(PREFS.density, "comfortable"), (v) => setPref(PREFS.density, v)];
-  const [motion, setMotionPref] = [getPref(PREFS.motion, "full"), (v) => setPref(PREFS.motion, v)];
+  const [landing, setLanding] = usePref(PREFS.defaultLanding, "home");
+  const [pageSize, setPageSize] = usePref(PREFS.pageSize, "50");
+  const [alertFloor, setAlertFloor] = usePref(PREFS.alertFloor, "ALL");
+  const [currency, setCurrency] = usePref(PREFS.currency, "INR");
+  const [density, setDensity] = usePref(PREFS.density, "comfortable");
+  const [motion, setMotionPref] = usePref(PREFS.motion, "full");
 
   return (
-    <div className="divide-y divide-border">
-      <PrefRow
-        label="Default landing page"
-        description="Where to go after signing in."
-        options={[
-          { value: "home", label: "Home" },
-          { value: "dashboard", label: "Dashboard" },
-        ]}
-        value={landing}
-        onChange={setLanding}
-      />
-      <PrefRow
-        label="Interface density"
-        description="Spacing used across tables and lists."
-        options={[
-          { value: "comfortable", label: "Comfortable" },
-          { value: "compact", label: "Compact" },
-        ]}
-        value={density}
-        onChange={setDensity}
-      />
-      <PrefRow
-        label="Interface motion"
-        description="Reduce animation for a calmer, faster feel."
-        options={[
-          { value: "full", label: "Full" },
-          { value: "reduced", label: "Reduced" },
-        ]}
-        value={motion}
-        onChange={setMotionPref}
-      />
-      <p className="pt-4 text-caption text-text-muted">
-        Preferences are stored on this device. Account sync arrives with the
-        backend.
+    <div className="flex flex-col">
+      <p className="overline pb-1 pt-1 text-[10px]">Workspace</p>
+      <div className="divide-y divide-border">
+        <PrefRow
+          label="Default landing page"
+          description="Where to go after signing in."
+          options={[
+            { value: "home", label: "Home" },
+            { value: "dashboard", label: "Dashboard" },
+          ]}
+          value={landing}
+          onChange={setLanding}
+        />
+        <PrefRow
+          label="Table rows per page"
+          description="How many transactions the ledger loads at once."
+          options={[
+            { value: "25", label: "25" },
+            { value: "50", label: "50" },
+            { value: "100", label: "100" },
+          ]}
+          value={pageSize}
+          onChange={setPageSize}
+        />
+        <PrefRow
+          label="Alert severity floor"
+          description="Lowest severity shown in the leakage alert feed."
+          options={[
+            { value: "ALL", label: "All" },
+            { value: "MEDIUM_PLUS", label: "Medium+" },
+            { value: "HIGH", label: "High only" },
+          ]}
+          value={alertFloor}
+          onChange={setAlertFloor}
+        />
+        <PrefRow
+          label="Currency display"
+          description="Symbol shown on amounts — values are not converted."
+          options={[
+            { value: "INR", label: "INR ₹" },
+            { value: "USD", label: "USD $" },
+          ]}
+          value={currency}
+          onChange={setCurrency}
+        />
+      </div>
+
+      <p className="overline pb-1 pt-5 text-[10px]">Appearance</p>
+      <div className="divide-y divide-border">
+        <PrefRow
+          label="Interface density"
+          description="Spacing used across tables and lists."
+          options={[
+            { value: "comfortable", label: "Comfortable" },
+            { value: "compact", label: "Compact" },
+          ]}
+          value={density}
+          onChange={setDensity}
+        />
+        <PrefRow
+          label="Interface motion"
+          description="Reduce animation for a calmer, faster feel."
+          options={[
+            { value: "full", label: "Full" },
+            { value: "reduced", label: "Reduced" },
+          ]}
+          value={motion}
+          onChange={setMotionPref}
+        />
+      </div>
+
+      <p className="pt-5 text-caption text-text-muted">
+        Preferences are stored on this device and apply instantly.
       </p>
     </div>
   );
