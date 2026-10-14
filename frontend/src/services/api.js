@@ -34,7 +34,9 @@ import {
 export const IS_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
 const USE_MOCK = IS_MOCK;
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const MOCK_DELAY_MS = 600;
+// No artificial latency. This delay used to be 600ms, which put a spinner on
+// every page switch — it was the single biggest reason the app felt slow.
+const MOCK_DELAY_MS = 0;
 
 /** True once a CSV upload has populated the (mock) workspace. */
 export function hasMockData() {
@@ -47,20 +49,62 @@ function mockResponse(data) {
   );
 }
 
+// Fail fast. The browser's default fetch timeout is effectively
+// unbounded, so a dead or stalled backend used to leave a spinner up
+// indefinitely — it read as "the page is taking forever to load".
+const API_TIMEOUT_MS = 8000;
+
+// Concurrent identical GETs share a single round trip. Dashboard mounts
+// several hooks that resolve to the same endpoint (/leakage four times,
+// /dashboard twice), so one page load used to fire 8 requests instead of 3.
+// Entries are dropped as soon as they settle, so later calls still refetch.
+const inflight = new Map();
+
 async function apiGet(path) {
-  const res = await fetch(`${API_BASE}${path}`);
-  if (!res.ok) {
-    // Surface the backend's { message } when it provides one.
-    let message = `API ${res.status}: ${path}`;
-    try {
-      const body = await res.json();
-      if (body?.message) message = body.message;
-    } catch {
-      /* non-JSON error body — keep the default message */
+  const url = `${API_BASE}${path}`;
+  const pending = inflight.get(url);
+  if (pending) return pending;
+
+  const request = fetchJson(url).finally(() => inflight.delete(url));
+  inflight.set(url, request);
+  return request;
+}
+
+async function fetchJson(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) {
+      // Surface the backend's { message } when it provides one.
+      let message = `API ${res.status}: ${url}`;
+      try {
+        const body = await res.json();
+        if (body?.message) message = body.message;
+      } catch {
+        /* non-JSON error body — keep the default message */
+      }
+      throw new Error(message);
     }
-    throw new Error(message);
+    return await res.json();
+  } catch (err) {
+    if (err?.name === "AbortError") {
+      throw new Error(
+        `The LeakLens API at ${API_BASE} did not respond within ${
+          API_TIMEOUT_MS / 1000
+        }s.`,
+      );
+    }
+    if (err instanceof TypeError) {
+      throw new Error(
+        `Cannot reach the LeakLens API at ${API_BASE}. Start the backend ` +
+          `(cd backend && npm start) or set VITE_USE_MOCK=true in frontend/.env.`,
+      );
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
   }
-  return res.json();
 }
 
 /** GET /api/dashboard */
@@ -125,7 +169,9 @@ export async function getConsolidationOpportunities() {
 
 export async function getContractExceptions() {
   if (USE_MOCK) return mockResponse(buildContractExceptions());
-  const leakage = await apiGet("/leakage");
+  // Goes through getLeakage() so it shares the /leakage round trip with the
+  // other Dashboard hooks instead of issuing its own.
+  const leakage = await getLeakage();
   return buildContractExceptions(leakage);
 }
 
