@@ -13,7 +13,6 @@ import {
   CloseIcon,
   DocIcon,
   GridIcon,
-  HomeIcon,
   LensLogo,
   ListIcon,
   MenuIcon,
@@ -25,7 +24,6 @@ import SidePanel from "./SidePanel";
 import ProfileMenu from "./ProfileMenu";
 
 const NAV_MAIN = [
-  { to: "/home", label: "Home", icon: HomeIcon },
   { to: "/dashboard", label: "Dashboard", icon: GridIcon },
   { to: "/transactions", label: "Transactions", icon: ListIcon },
   { to: "/price-benchmarking", label: "Price Benchmarking", icon: ChartIcon, soon: true },
@@ -80,7 +78,6 @@ function NavItem({ item, collapsed = false }) {
   return (
     <NavLink
       to={item.to}
-      end={item.to === "/home"}
       title={collapsed ? item.label : undefined}
       className={className}
     >

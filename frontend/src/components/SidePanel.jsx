@@ -8,7 +8,6 @@ import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import { CloseIcon } from "./ui/Icons";
 
 const PREFS = {
-  defaultLanding: "leaklens.defaultLanding", // "home" | "dashboard"
   pageSize: "leaklens.pageSize",             // "25" | "50" | "100"
   alertFloor: "leaklens.alertsSeverity",     // "ALL" | "MEDIUM_PLUS" | "HIGH"
   currency: "leaklens.currency",             // "INR" | "USD"
@@ -79,7 +78,6 @@ function PrefRow({ label, description, options, value, onChange }) {
 }
 
 function SettingsContent() {
-  const [landing, setLanding] = usePref(PREFS.defaultLanding, "home");
   const [pageSize, setPageSize] = usePref(PREFS.pageSize, "50");
   const [alertFloor, setAlertFloor] = usePref(PREFS.alertFloor, "ALL");
   const [currency, setCurrency] = usePref(PREFS.currency, "INR");
@@ -90,16 +88,6 @@ function SettingsContent() {
     <div className="flex flex-col">
       <p className="overline pb-1 pt-1 text-[10px]">Workspace</p>
       <div className="divide-y divide-border">
-        <PrefRow
-          label="Default landing page"
-          description="Where to go after signing in."
-          options={[
-            { value: "home", label: "Home" },
-            { value: "dashboard", label: "Dashboard" },
-          ]}
-          value={landing}
-          onChange={setLanding}
-        />
         <PrefRow
           label="Table rows per page"
           description="How many transactions the ledger loads at once."
