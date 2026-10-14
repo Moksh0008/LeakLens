@@ -8,7 +8,7 @@
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { LensLogo } from "../ui/Icons";
-import bgImage from "../../assets/LeakLens-BI.png";
+import bgImage from "../../assets/LeakLens-BI.webp";
 
 const EASE = [0.22, 1, 0.36, 1];
 

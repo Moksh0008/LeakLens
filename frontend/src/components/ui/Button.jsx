@@ -5,7 +5,7 @@
 
 const VARIANTS = {
   primary:
-    "bg-accent text-white hover:bg-accent-strong border border-transparent",
+    "bg-accent-strong text-white hover:bg-accent-strong/85 border border-transparent",
   secondary:
     "bg-surface-elevated text-text-primary hover:bg-surface-hover border border-border",
   ghost:

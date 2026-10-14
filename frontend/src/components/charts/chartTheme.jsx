@@ -2,7 +2,7 @@
 // thin hairline grids, one blue primary series, purple secondary only
 // when necessary, red reserved for leakage/problem data.
 
-export const AXIS_TICK = { fill: "#737b87", fontSize: 11 };
+export const AXIS_TICK = { fill: "#818996", fontSize: 11 };
 export const GRID_COLOR = "rgba(255, 255, 255, 0.05)";
 
 export const SERIES_BLUE = "#4f7ff7";

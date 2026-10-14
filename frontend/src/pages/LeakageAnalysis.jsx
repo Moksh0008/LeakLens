@@ -159,14 +159,14 @@ export default function LeakageAnalysis() {
             onClick={() => setFiltersOpen((o) => !o)}
             className={`flex items-center gap-2 rounded-control border px-3.5 py-2 text-small font-medium transition ${
               filtersOpen
-                ? "border-accent bg-accent text-white"
+                ? "border-accent bg-accent-strong text-white"
                 : "border-border bg-surface text-text-primary hover:border-accent/50"
             }`}
           >
             <FilterIcon size={15} />
             Filters
             {activeFilters > 0 && (
-              <span className="tnum rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-semibold text-white ring-2 ring-surface">
+              <span className="tnum rounded-full bg-accent-strong px-1.5 py-0.5 text-[10px] font-semibold text-white ring-2 ring-surface">
                 {activeFilters}
               </span>
             )}
@@ -188,7 +188,7 @@ export default function LeakageAnalysis() {
                         onClick={() => setSeverity(s)}
                         className={`rounded-md border px-2.5 py-1 text-xs font-medium transition ${
                           severity === s
-                            ? "border-accent bg-accent text-white"
+                            ? "border-accent bg-accent-strong text-white"
                             : "border-border text-text-secondary hover:border-accent/50 hover:text-text-primary"
                         }`}
                       >
@@ -207,7 +207,7 @@ export default function LeakageAnalysis() {
                       onClick={() => setDetection("ALL")}
                       className={`rounded-md border px-2.5 py-1 text-xs font-medium transition ${
                         detection === "ALL"
-                          ? "border-accent bg-accent text-white"
+                          ? "border-accent bg-accent-strong text-white"
                           : "border-border text-text-secondary hover:border-accent/50 hover:text-text-primary"
                       }`}
                     >
@@ -220,7 +220,7 @@ export default function LeakageAnalysis() {
                         onClick={() => setDetection(d)}
                         className={`rounded-md border px-2.5 py-1 text-xs font-medium transition ${
                           detection === d
-                            ? "border-accent bg-accent text-white"
+                            ? "border-accent bg-accent-strong text-white"
                             : "border-border text-text-secondary hover:border-accent/50 hover:text-text-primary"
                         }`}
                       >

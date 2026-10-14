@@ -1,0 +1,22 @@
+# LeakLens
+
+> LeakLens is a procurement spend intelligence platform that detects potential leakage in purchasing data — price anomalies, duplicate transactions, out-of-contract purchases and missed discounts — with an evidence trail for every finding.
+
+LeakLens analyzes uploaded procurement transactions against benchmark prices, supplier medians and contract terms. Every finding reports the transaction ID, supplier, actual price, benchmark price, estimated potential impact and the reason it was flagged. Findings are described as potential leakage requiring investigation; nothing is labelled as fraud.
+
+## Public pages
+
+- [Landing page](https://leaklens-mmra.vercel.app/): product overview, methodology and key capabilities.
+- [Sign in](https://leaklens-mmra.vercel.app/login): existing users sign in to the analysis workspace.
+- [Create account](https://leaklens-mmra.vercel.app/signup): register to start analyzing procurement data.
+
+## Capabilities
+
+- [Dashboard](https://leaklens-mmra.vercel.app/dashboard): total procurement spend, potential leakage, severity distribution and high-impact transactions.
+- [Transactions](https://leaklens-mmra.vercel.app/transactions): search, filter and sort every analyzed record.
+- [Leakage analysis](https://leaklens-mmra.vercel.app/leakage): flagged transactions with detection type, evidence and estimated impact.
+- [Data import](https://leaklens-mmra.vercel.app/upload): upload a procurement CSV to run detection.
+
+## Notes for agents
+
+Authenticated pages require a signed-in session and are not reachable by anonymous crawlers. All amounts are illustrative demo data unless a dataset has been uploaded. Potential leakage for price findings is calculated as `max(actual unit price − benchmark unit price, 0) × quantity`.

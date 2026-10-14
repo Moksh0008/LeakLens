@@ -15,7 +15,7 @@ import ManagementInsights from "../components/landing/ManagementInsights";
 import InvestigationPreview from "../components/landing/InvestigationPreview";
 import FinalCTA from "../components/landing/FinalCTA";
 import Footer from "../components/landing/Footer";
-import bgImage from "../assets/LeakLens-BI.png";
+import bgImage from "../assets/LeakLens-BI.webp";
 
 export default function Landing() {
   return (

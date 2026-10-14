@@ -1,0 +1,43 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "LeakLens",
+    "identifier": "leaklens-mmra.vercel.app",
+    "documentationUrl": "https://leaklens-mmra.vercel.app/",
+    "logoUrl": "https://leaklens-mmra.vercel.app/favicon.svg"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:leaklens-mmra.vercel.app:web:landing",
+      "displayName": "LeakLens — Procurement Spend Intelligence",
+      "description": "Product overview for LeakLens, a procurement leakage detection platform covering price anomalies, duplicate payments and out-of-contract purchases.",
+      "type": "text/html",
+      "url": "https://leaklens-mmra.vercel.app/",
+      "tags": ["procurement", "spend-analysis", "leakage-detection"]
+    },
+    {
+      "identifier": "urn:air:leaklens-mmra.vercel.app:web:signin",
+      "displayName": "Sign in to LeakLens",
+      "description": "Sign-in page for the LeakLens analysis workspace.",
+      "type": "text/html",
+      "url": "https://leaklens-mmra.vercel.app/login",
+      "tags": ["authentication"]
+    },
+    {
+      "identifier": "urn:air:leaklens-mmra.vercel.app:web:signup",
+      "displayName": "Create a LeakLens account",
+      "description": "Registration page for new LeakLens users.",
+      "type": "text/html",
+      "url": "https://leaklens-mmra.vercel.app/signup",
+      "tags": ["authentication"]
+    },
+    {
+      "identifier": "urn:air:leaklens-mmra.vercel.app:web:llms-txt",
+      "displayName": "LeakLens llms.txt",
+      "description": "Machine-readable summary of the LeakLens product and its public pages.",
+      "type": "text/plain",
+      "url": "https://leaklens-mmra.vercel.app/llms.txt",
+      "tags": ["documentation"]
+    }
+  ]
+}

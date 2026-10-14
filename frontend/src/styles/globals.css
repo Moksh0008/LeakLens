@@ -24,7 +24,7 @@
   /* Text */
   --text-primary: #f1f3f5;
   --text-secondary: #a3aab5;
-  --text-muted: #737b87;
+  --text-muted: #818996;
 
   /* Accent — used sparingly; the interface does not glow */
   --accent: #4f7ff7;
@@ -205,7 +205,7 @@
   --color-ink-100: #171b22;
   --color-ink-200: rgba(255, 255, 255, 0.08);
   --color-ink-300: rgba(255, 255, 255, 0.14);
-  --color-ink-400: #737b87;
+  --color-ink-400: #818996;
   --color-ink-500: #a3aab5;
   --color-ink-600: #c7ccd4;
   --color-ink-700: #e6e9ed;
